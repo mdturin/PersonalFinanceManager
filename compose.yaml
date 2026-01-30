@@ -1,0 +1,7 @@
+﻿services:
+  personalfinancemanager:
+    image: personalfinancemanager
+    build:
+      context: .
+      dockerfile: PersonalFinanceManager/Dockerfile
+
