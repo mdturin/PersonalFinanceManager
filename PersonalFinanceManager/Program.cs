@@ -1,4 +1,5 @@
-using UserManagement.Extensions;
+using UserManagement.Core.Extensions;
+using UserManagement.Web.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Add User Management Library with custom Identity options
+builder.Services.AddUserManagementControllers();
 builder.Services.AddUserManagement(
     builder.Configuration,
     builder.Configuration.GetConnectionString("DefaultConnection")!,
@@ -55,9 +57,9 @@ builder.Services.AddUserManagement(
         options.Lockout.AllowedForNewUsers = true;
 
         // User settings
+        options.User.RequireUniqueEmail = true;
         options.User.AllowedUserNameCharacters =
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-        options.User.RequireUniqueEmail = true;
 
         // Sign in settings
         options.SignIn.RequireConfirmedEmail = false;
@@ -72,7 +74,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll",
         builder =>
         {
-            builder.AllowAnyOrigin()
+            builder
+                .AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader();
         });

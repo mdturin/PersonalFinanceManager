@@ -4,14 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using UserManagement.Data;
+using UserManagement.Core.Data;
 
 #nullable disable
 
 namespace PersonalFinanceManager.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260130224937_InitialUserManagement")]
+    [Migration("20260131095915_InitialUserManagement")]
     partial class InitialUserManagement
     {
         /// <inheritdoc />
@@ -148,7 +148,7 @@ namespace PersonalFinanceManager.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("UserManagement.Models.ApplicationUser", b =>
+            modelBuilder.Entity("UserManagement.Core.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -244,7 +244,7 @@ namespace PersonalFinanceManager.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("UserManagement.Models.ApplicationUser", null)
+                    b.HasOne("UserManagement.Core.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -253,7 +253,7 @@ namespace PersonalFinanceManager.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("UserManagement.Models.ApplicationUser", null)
+                    b.HasOne("UserManagement.Core.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -268,7 +268,7 @@ namespace PersonalFinanceManager.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("UserManagement.Models.ApplicationUser", null)
+                    b.HasOne("UserManagement.Core.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -277,7 +277,7 @@ namespace PersonalFinanceManager.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("UserManagement.Models.ApplicationUser", null)
+                    b.HasOne("UserManagement.Core.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
