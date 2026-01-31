@@ -1,5 +1,6 @@
-using UserManagement.Core.Extensions;
-using UserManagement.Web.Extensions;
+using PersonalFinanceManager.Extensions;
+using PersonalFinanceManager.Interfaces;
+using PersonalFinanceManager.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,7 +38,6 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Add User Management Library with custom Identity options
-builder.Services.AddUserManagementControllers();
 builder.Services.AddUserManagement(
     builder.Configuration,
     builder.Configuration.GetConnectionString("DefaultConnection")!,
@@ -67,6 +67,11 @@ builder.Services.AddUserManagement(
     },
     migrationsAssembly: "PersonalFinanceManager" 
 );
+
+// Register services
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 // Add CORS (if needed)
 builder.Services.AddCors(options =>
