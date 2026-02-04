@@ -94,7 +94,7 @@ public class UsersController : ControllerBase
             return BadRequest(new { message = "Update failed" });
         }
 
-        return Ok(new { message = "User updated successfully" });
+        return NoContent();
     }
 
     [Authorize(Roles = "Admin")]
