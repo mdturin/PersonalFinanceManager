@@ -95,6 +95,36 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    public static async Task SeedConfigAsync(this IServiceProvider serviceProvider)
+    {
+        var liteDbContext = serviceProvider.GetService<LiteDbContext>();
+        if(liteDbContext == null)
+            throw new Exception("LiteDbContext is not configured.");
+
+        var config = new SideNavConfig()
+        {
+            Version = "2026-02-05-03",
+            Sections =
+            [
+                new NavSection()
+                {
+                    Title = "Overview",
+                    Items =
+                    [
+                        new NavItem()
+                        {
+                            Label = "Dashboard",
+                            Route = "/",
+                            Active = true,
+                        }
+                    ]
+                }
+            ]
+        };
+
+        liteDbContext.Save(config);
+    }
+
     /// <summary>
     /// Seeds default roles
     /// </summary>

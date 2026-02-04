@@ -1,3 +1,4 @@
+using PersonalFinanceManager.Data;
 using PersonalFinanceManager.Extensions;
 using PersonalFinanceManager.Interfaces;
 using PersonalFinanceManager.Services;
@@ -69,6 +70,9 @@ builder.Services.AddUserManagement(
 );
 
 // Register services
+builder.Services.AddSingleton<LiteDbContext>();
+builder.Services.AddSingleton<IConfigService, ConfigService>();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -98,6 +102,9 @@ using (var scope = app.Services.CreateScope())
         // Apply migrations automatically (optional - use with caution in production)
         // var dbContext = services.GetRequiredService<ApplicationDbContext>();
         // await dbContext.Database.MigrateAsync();
+        
+        // Seed Configs
+        await services.SeedConfigAsync();
         
         // Seed default roles
         await services.SeedRolesAsync("Admin", "User", "Manager", "Moderator");
@@ -132,9 +139,9 @@ else
     app.UseHsts();
 }
 
+app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
