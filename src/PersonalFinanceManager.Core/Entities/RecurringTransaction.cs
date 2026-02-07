@@ -1,6 +1,6 @@
-using PersonalFinanceManager.Enums;
+using PersonalFinanceManager.Core.Enums;
 
-namespace PersonalFinanceManager.Models;
+namespace PersonalFinanceManager.Core.Entities;
 
 public class RecurringTransaction : BaseEntity
 {

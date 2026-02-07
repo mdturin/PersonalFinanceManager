@@ -1,7 +1,8 @@
 using System.Linq.Expressions;
 using LiteDB;
+using Microsoft.Extensions.Configuration;
 
-namespace PersonalFinanceManager.Data;
+namespace PersonalFinanceManager.Infrastructure.Data.Context;
 
 public class LiteDbContext : IDisposable
 {

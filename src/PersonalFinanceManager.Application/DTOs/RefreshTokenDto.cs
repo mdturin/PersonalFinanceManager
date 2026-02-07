@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace PersonalFinanceManager.DTOs;
+namespace PersonalFinanceManager.Application.DTOs;
 
 public class RefreshTokenDto
 {

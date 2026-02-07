@@ -1,8 +1,9 @@
-using PersonalFinanceManager.Configurations;
-using PersonalFinanceManager.Data;
-using PersonalFinanceManager.Interfaces;
+using PersonalFinanceManager.Application.Interfaces;
+using PersonalFinanceManager.Core.Configurations;
+using PersonalFinanceManager.Core.Interfaces;
+using PersonalFinanceManager.Infrastructure.Data.Context;
 
-namespace PersonalFinanceManager.Services;
+namespace PersonalFinanceManager.Application.Services;
 
 public class ConfigService(LiteDbContext liteDbContext) : IConfigService
 {

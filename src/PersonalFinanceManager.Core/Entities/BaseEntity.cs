@@ -1,4 +1,4 @@
-namespace PersonalFinanceManager.Models;
+namespace PersonalFinanceManager.Core.Entities;
 
 public class BaseEntity
 {

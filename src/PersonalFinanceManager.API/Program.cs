@@ -1,7 +1,7 @@
-using PersonalFinanceManager.Data;
-using PersonalFinanceManager.Extensions;
-using PersonalFinanceManager.Interfaces;
-using PersonalFinanceManager.Services;
+using PersonalFinanceManager.API.Extensions;
+using PersonalFinanceManager.Application.Interfaces;
+using PersonalFinanceManager.Application.Services;
+using PersonalFinanceManager.Infrastructure.Data.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 

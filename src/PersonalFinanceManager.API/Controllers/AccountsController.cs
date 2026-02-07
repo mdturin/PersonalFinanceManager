@@ -2,11 +2,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
-using PersonalFinanceManager.Data;
-using PersonalFinanceManager.DTOs.Account;
-using PersonalFinanceManager.Models;
+using PersonalFinanceManager.Application.DTOs.Account;
+using PersonalFinanceManager.Core.Entities;
+using PersonalFinanceManager.Infrastructure.Data.Context;
 
-namespace PersonalFinanceManager.Controllers;
+namespace PersonalFinanceManager.API.Controllers;
 
 [Authorize]
 [ApiController]

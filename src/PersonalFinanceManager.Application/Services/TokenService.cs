@@ -4,11 +4,11 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using PersonalFinanceManager.Configurations;
-using PersonalFinanceManager.Interfaces;
-using PersonalFinanceManager.Models;
+using PersonalFinanceManager.Application.Interfaces;
+using PersonalFinanceManager.Core.Configurations;
+using PersonalFinanceManager.Core.Entities;
 
-namespace PersonalFinanceManager.Services;
+namespace PersonalFinanceManager.Application.Services;
 
 /// <summary>
 /// Service for JWT token generation and validation

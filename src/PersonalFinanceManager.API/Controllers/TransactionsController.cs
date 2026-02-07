@@ -1,14 +1,14 @@
 using System.ComponentModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using PersonalFinanceManager.Data;
-using PersonalFinanceManager.DTOs.Transaction;
-using PersonalFinanceManager.Enums;
-using PersonalFinanceManager.Models;
+using Microsoft.EntityFrameworkCore;
+using PersonalFinanceManager.Application.DTOs.Transaction;
+using PersonalFinanceManager.Core.Entities;
+using PersonalFinanceManager.Core.Enums;
+using PersonalFinanceManager.Infrastructure.Data.Context;
 
-namespace PersonalFinanceManager.Controllers;
+namespace PersonalFinanceManager.API.Controllers;
 
 [Authorize]
 [ApiController]

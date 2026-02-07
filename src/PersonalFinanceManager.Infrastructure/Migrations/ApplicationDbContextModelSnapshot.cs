@@ -3,11 +3,11 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using PersonalFinanceManager.Data;
+using PersonalFinanceManager.Infrastructure.Data.Context;
 
 #nullable disable
 
-namespace PersonalFinanceManager.Migrations
+namespace PersonalFinanceManager.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
@@ -145,7 +145,7 @@ namespace PersonalFinanceManager.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("PersonalFinanceManager.Models.Account", b =>
+            modelBuilder.Entity("PersonalFinanceManager.Core.Entities.Account", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -204,7 +204,7 @@ namespace PersonalFinanceManager.Migrations
                     b.ToTable("Accounts", (string)null);
                 });
 
-            modelBuilder.Entity("PersonalFinanceManager.Models.ApplicationUser", b =>
+            modelBuilder.Entity("PersonalFinanceManager.Core.Entities.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -309,7 +309,7 @@ namespace PersonalFinanceManager.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("PersonalFinanceManager.Models.Budget", b =>
+            modelBuilder.Entity("PersonalFinanceManager.Core.Entities.Budget", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -364,7 +364,7 @@ namespace PersonalFinanceManager.Migrations
                     b.ToTable("Budgets", (string)null);
                 });
 
-            modelBuilder.Entity("PersonalFinanceManager.Models.Category", b =>
+            modelBuilder.Entity("PersonalFinanceManager.Core.Entities.Category", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -413,7 +413,7 @@ namespace PersonalFinanceManager.Migrations
                     b.ToTable("Categories", (string)null);
                 });
 
-            modelBuilder.Entity("PersonalFinanceManager.Models.Goal", b =>
+            modelBuilder.Entity("PersonalFinanceManager.Core.Entities.Goal", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -467,7 +467,7 @@ namespace PersonalFinanceManager.Migrations
                     b.ToTable("Goals", (string)null);
                 });
 
-            modelBuilder.Entity("PersonalFinanceManager.Models.RecurringTransaction", b =>
+            modelBuilder.Entity("PersonalFinanceManager.Core.Entities.RecurringTransaction", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -531,7 +531,7 @@ namespace PersonalFinanceManager.Migrations
                     b.ToTable("RecurringTransactions", (string)null);
                 });
 
-            modelBuilder.Entity("PersonalFinanceManager.Models.Transaction", b =>
+            modelBuilder.Entity("PersonalFinanceManager.Core.Entities.Transaction", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -612,7 +612,7 @@ namespace PersonalFinanceManager.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("PersonalFinanceManager.Models.ApplicationUser", null)
+                    b.HasOne("PersonalFinanceManager.Core.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -621,7 +621,7 @@ namespace PersonalFinanceManager.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("PersonalFinanceManager.Models.ApplicationUser", null)
+                    b.HasOne("PersonalFinanceManager.Core.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -636,7 +636,7 @@ namespace PersonalFinanceManager.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PersonalFinanceManager.Models.ApplicationUser", null)
+                    b.HasOne("PersonalFinanceManager.Core.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -645,16 +645,16 @@ namespace PersonalFinanceManager.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("PersonalFinanceManager.Models.ApplicationUser", null)
+                    b.HasOne("PersonalFinanceManager.Core.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PersonalFinanceManager.Models.Account", b =>
+            modelBuilder.Entity("PersonalFinanceManager.Core.Entities.Account", b =>
                 {
-                    b.HasOne("PersonalFinanceManager.Models.ApplicationUser", "User")
+                    b.HasOne("PersonalFinanceManager.Core.Entities.ApplicationUser", "User")
                         .WithMany("Accounts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -663,14 +663,14 @@ namespace PersonalFinanceManager.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("PersonalFinanceManager.Models.Budget", b =>
+            modelBuilder.Entity("PersonalFinanceManager.Core.Entities.Budget", b =>
                 {
-                    b.HasOne("PersonalFinanceManager.Models.Category", "Category")
+                    b.HasOne("PersonalFinanceManager.Core.Entities.Category", "Category")
                         .WithMany("Budgets")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("PersonalFinanceManager.Models.ApplicationUser", "User")
+                    b.HasOne("PersonalFinanceManager.Core.Entities.ApplicationUser", "User")
                         .WithMany("Budgets")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -681,14 +681,14 @@ namespace PersonalFinanceManager.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("PersonalFinanceManager.Models.Category", b =>
+            modelBuilder.Entity("PersonalFinanceManager.Core.Entities.Category", b =>
                 {
-                    b.HasOne("PersonalFinanceManager.Models.Category", "ParentCategory")
+                    b.HasOne("PersonalFinanceManager.Core.Entities.Category", "ParentCategory")
                         .WithMany("SubCategories")
                         .HasForeignKey("ParentCategoryId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("PersonalFinanceManager.Models.ApplicationUser", "User")
+                    b.HasOne("PersonalFinanceManager.Core.Entities.ApplicationUser", "User")
                         .WithMany("Categories")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -699,9 +699,9 @@ namespace PersonalFinanceManager.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("PersonalFinanceManager.Models.Goal", b =>
+            modelBuilder.Entity("PersonalFinanceManager.Core.Entities.Goal", b =>
                 {
-                    b.HasOne("PersonalFinanceManager.Models.ApplicationUser", "User")
+                    b.HasOne("PersonalFinanceManager.Core.Entities.ApplicationUser", "User")
                         .WithMany("Goals")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -710,19 +710,19 @@ namespace PersonalFinanceManager.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("PersonalFinanceManager.Models.RecurringTransaction", b =>
+            modelBuilder.Entity("PersonalFinanceManager.Core.Entities.RecurringTransaction", b =>
                 {
-                    b.HasOne("PersonalFinanceManager.Models.Account", "Account")
+                    b.HasOne("PersonalFinanceManager.Core.Entities.Account", "Account")
                         .WithMany()
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PersonalFinanceManager.Models.Category", "Category")
+                    b.HasOne("PersonalFinanceManager.Core.Entities.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId");
 
-                    b.HasOne("PersonalFinanceManager.Models.ApplicationUser", "User")
+                    b.HasOne("PersonalFinanceManager.Core.Entities.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -735,24 +735,24 @@ namespace PersonalFinanceManager.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("PersonalFinanceManager.Models.Transaction", b =>
+            modelBuilder.Entity("PersonalFinanceManager.Core.Entities.Transaction", b =>
                 {
-                    b.HasOne("PersonalFinanceManager.Models.Account", "Account")
+                    b.HasOne("PersonalFinanceManager.Core.Entities.Account", "Account")
                         .WithMany("Transactions")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PersonalFinanceManager.Models.Category", "Category")
+                    b.HasOne("PersonalFinanceManager.Core.Entities.Category", "Category")
                         .WithMany("Transactions")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("PersonalFinanceManager.Models.RecurringTransaction", "RecurringTransaction")
+                    b.HasOne("PersonalFinanceManager.Core.Entities.RecurringTransaction", "RecurringTransaction")
                         .WithMany("Transactions")
                         .HasForeignKey("RecurringTransactionId");
 
-                    b.HasOne("PersonalFinanceManager.Models.Account", "TransferToAccount")
+                    b.HasOne("PersonalFinanceManager.Core.Entities.Account", "TransferToAccount")
                         .WithMany("TransferToTransactions")
                         .HasForeignKey("TransferToAccountId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -766,14 +766,14 @@ namespace PersonalFinanceManager.Migrations
                     b.Navigation("TransferToAccount");
                 });
 
-            modelBuilder.Entity("PersonalFinanceManager.Models.Account", b =>
+            modelBuilder.Entity("PersonalFinanceManager.Core.Entities.Account", b =>
                 {
                     b.Navigation("Transactions");
 
                     b.Navigation("TransferToTransactions");
                 });
 
-            modelBuilder.Entity("PersonalFinanceManager.Models.ApplicationUser", b =>
+            modelBuilder.Entity("PersonalFinanceManager.Core.Entities.ApplicationUser", b =>
                 {
                     b.Navigation("Accounts");
 
@@ -784,7 +784,7 @@ namespace PersonalFinanceManager.Migrations
                     b.Navigation("Goals");
                 });
 
-            modelBuilder.Entity("PersonalFinanceManager.Models.Category", b =>
+            modelBuilder.Entity("PersonalFinanceManager.Core.Entities.Category", b =>
                 {
                     b.Navigation("Budgets");
 
@@ -793,7 +793,7 @@ namespace PersonalFinanceManager.Migrations
                     b.Navigation("Transactions");
                 });
 
-            modelBuilder.Entity("PersonalFinanceManager.Models.RecurringTransaction", b =>
+            modelBuilder.Entity("PersonalFinanceManager.Core.Entities.RecurringTransaction", b =>
                 {
                     b.Navigation("Transactions");
                 });

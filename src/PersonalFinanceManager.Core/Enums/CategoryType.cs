@@ -1,4 +1,4 @@
-namespace PersonalFinanceManager.Enums;
+namespace PersonalFinanceManager.Core.Enums;
 
 public enum CategoryType
 {

@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using PersonalFinanceManager.Models;
+using PersonalFinanceManager.Core.Entities;
 
-namespace PersonalFinanceManager.Data.Configurations;
+namespace PersonalFinanceManager.Infrastructure.Data.Configurations;
 
 public class CategoryConfiguration : IEntityTypeConfiguration<Category>
 {

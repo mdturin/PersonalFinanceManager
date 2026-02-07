@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace PersonalFinanceManager.Models;
+namespace PersonalFinanceManager.Core.Entities;
 
 public class ApplicationUser : IdentityUser
 {

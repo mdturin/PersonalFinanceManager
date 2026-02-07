@@ -1,7 +1,7 @@
 using System.Security.Claims;
-using PersonalFinanceManager.Models;
+using PersonalFinanceManager.Core.Entities;
 
-namespace PersonalFinanceManager.Interfaces;
+namespace PersonalFinanceManager.Application.Interfaces;
 
 /// <summary>
 /// Interface for JWT token generation and validation

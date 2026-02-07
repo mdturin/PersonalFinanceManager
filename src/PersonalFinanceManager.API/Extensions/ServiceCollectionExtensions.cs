@@ -4,12 +4,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using PersonalFinanceManager.Configurations;
-using PersonalFinanceManager.Data;
-using PersonalFinanceManager.Interfaces;
-using PersonalFinanceManager.Models;
+using PersonalFinanceManager.Core.Configurations;
+using PersonalFinanceManager.Core.Entities;
+using PersonalFinanceManager.Infrastructure.Data.Context;
 
-namespace PersonalFinanceManager.Extensions;
+namespace PersonalFinanceManager.API.Extensions;
 
 /// <summary>
 /// Extension methods for configuring user management services

@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
-using PersonalFinanceManager.Configurations;
-using PersonalFinanceManager.DTOs;
-using PersonalFinanceManager.Interfaces;
-using PersonalFinanceManager.Models;
+using PersonalFinanceManager.Application.DTOs;
+using PersonalFinanceManager.Application.Interfaces;
+using PersonalFinanceManager.Core.Configurations;
+using PersonalFinanceManager.Core.Entities;
 
-namespace PersonalFinanceManager.Services;
+namespace PersonalFinanceManager.Application.Services;
 
 /// <summary>
 /// Service for user authentication operations

@@ -1,6 +1,6 @@
-using PersonalFinanceManager.Interfaces;
+using PersonalFinanceManager.Core.Interfaces;
 
-namespace PersonalFinanceManager.Configurations;
+namespace PersonalFinanceManager.Core.Configurations;
 
 public class NavItem
 {

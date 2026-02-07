@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using PersonalFinanceManager.Data.Configurations;
-using PersonalFinanceManager.Models;
+using PersonalFinanceManager.Core.Entities;
+using PersonalFinanceManager.Infrastructure.Data.Configurations;
 
-namespace PersonalFinanceManager.Data;
+namespace PersonalFinanceManager.Infrastructure.Data.Context;
 
 /// <summary>
 /// Database context for user management

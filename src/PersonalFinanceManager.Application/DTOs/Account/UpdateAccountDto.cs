@@ -1,4 +1,4 @@
-namespace PersonalFinanceManager.DTOs.Account;
+namespace PersonalFinanceManager.Application.DTOs.Account;
 
 public class UpdateAccountDto
 {

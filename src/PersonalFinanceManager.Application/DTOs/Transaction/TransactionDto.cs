@@ -1,6 +1,6 @@
-using PersonalFinanceManager.Enums;
+using PersonalFinanceManager.Core.Enums;
 
-namespace PersonalFinanceManager.DTOs.Transaction;
+namespace PersonalFinanceManager.Application.DTOs.Transaction;
 
 public class TransactionDto
 {

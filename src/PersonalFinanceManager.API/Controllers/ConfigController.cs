@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using PersonalFinanceManager.Interfaces;
+using PersonalFinanceManager.Application.Interfaces;
 
-namespace PersonalFinanceManager.Controllers;
+namespace PersonalFinanceManager.API.Controllers;
 
 [ApiController]
 [Route("api/config")]

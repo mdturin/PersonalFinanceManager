@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace PersonalFinanceManager.Migrations
+namespace PersonalFinanceManager.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialUserManagement : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

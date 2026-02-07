@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using PersonalFinanceManager.DTOs;
-using PersonalFinanceManager.Interfaces;
-using PersonalFinanceManager.Models;
+using PersonalFinanceManager.Application.DTOs;
+using PersonalFinanceManager.Application.Interfaces;
+using PersonalFinanceManager.Core.Entities;
 
-namespace PersonalFinanceManager.Services;
+namespace PersonalFinanceManager.Application.Services;
 
 /// <summary>
 /// Service for user management operations

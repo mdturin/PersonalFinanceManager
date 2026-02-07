@@ -1,6 +1,6 @@
-using PersonalFinanceManager.DTOs;
+using PersonalFinanceManager.Application.DTOs;
 
-namespace PersonalFinanceManager.Interfaces;
+namespace PersonalFinanceManager.Application.Interfaces;
 
 /// <summary>
 /// Interface for authentication service

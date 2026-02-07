@@ -1,4 +1,4 @@
-namespace PersonalFinanceManager.Configurations;
+namespace PersonalFinanceManager.Core.Configurations;
 
 /// <summary>
 /// JWT configuration settings

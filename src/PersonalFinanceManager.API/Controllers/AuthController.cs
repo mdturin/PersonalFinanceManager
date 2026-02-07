@@ -1,10 +1,10 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PersonalFinanceManager.DTOs;
-using PersonalFinanceManager.Interfaces;
+using PersonalFinanceManager.Application.DTOs;
+using PersonalFinanceManager.Application.Interfaces;
 
-namespace PersonalFinanceManager.Controllers;
+namespace PersonalFinanceManager.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
