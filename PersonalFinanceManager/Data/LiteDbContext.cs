@@ -32,19 +32,8 @@ public class LiteDbContext : IDisposable
 
     public T? GetItemByQuery<T>(Expression<Func<T, bool>>? predicate, bool asc=true, string orderBy="") where T : class
     {
-        var col = GetCollection<T>().Query();
-        
-        if(predicate != null)
-            col = col.Where(predicate);
-        
-        if (!string.IsNullOrWhiteSpace(orderBy))
-        {
-            col = asc 
-                ? col.OrderBy(orderBy)
-                : col.OrderByDescending(orderBy);
-        }
-        
-        return col.ToList().FirstOrDefault();
+        return GetItemsByQuery(predicate, 0, 1, asc, orderBy)
+            .FirstOrDefault();
     }
     
     public IEnumerable<T> GetItemsByQuery<T>(Expression<Func<T, bool>>? predicate, int skip=0, int limit=100, bool asc=true, string orderBy="") where T : class
