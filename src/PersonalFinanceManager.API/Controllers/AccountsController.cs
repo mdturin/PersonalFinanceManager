@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using PersonalFinanceManager.Application.DTOs.Account;
-using PersonalFinanceManager.Core.Entities;
 using PersonalFinanceManager.Infrastructure.Data.Context;
 
 namespace PersonalFinanceManager.API.Controllers;
@@ -31,12 +30,13 @@ public class AccountsController : ControllerBase
             .Where(a => a.UserId == UserId)
             .Select(a => new AccountDto
             {
-                Id = a.Id,
                 Name = a.Name,
                 Type = a.Type,
+                Institution = a.Institution,
                 CurrentBalance = a.CurrentBalance,
                 Currency = a.Currency,
-                IsActive = a.IsActive
+                IsActive = a.IsActive,
+                UpdatedAt = a.UpdatedAt
             })
             .ToListAsync();
 
@@ -51,41 +51,27 @@ public class AccountsController : ControllerBase
             .Where(a => a.Id == id && a.UserId == UserId)
             .Select(a => new AccountDto
             {
-                Id = a.Id,
                 Name = a.Name,
                 Type = a.Type,
+                Institution = a.Institution,
                 CurrentBalance = a.CurrentBalance,
                 Currency = a.Currency,
-                IsActive = a.IsActive
+                IsActive = a.IsActive,
+                UpdatedAt = a.UpdatedAt
             })
             .FirstOrDefaultAsync();
 
-        if (account == null)
-            return NotFound();
-
-        return Ok(account);
+        return account == null
+            ? NotFound()
+            : Ok(account);
     }
 
     // POST: api/accounts
     [HttpPost]
     public async Task<IActionResult> CreateAccount(CreateAccountDto dto)
     {
-        var account = new Account
-        {
-            Id = Guid.NewGuid().ToString(),
-            UserId = UserId,
-            Name = dto.Name,
-            Type = dto.Type,
-            InitialBalance = dto.InitialBalance,
-            CurrentBalance = dto.InitialBalance,
-            Currency = dto.Currency,
-            Description = dto.Description,
-            Color = dto.Color,
-            Icon = dto.Icon,
-            IncludeInNetWorth = dto.IncludeInNetWorth,
-            CreatedAt = DateTime.UtcNow
-        };
-
+        var account = dto.ToAccount(UserId);
+        
         _context.Accounts.Add(account);
         await _context.SaveChangesAsync();
 
@@ -106,8 +92,6 @@ public class AccountsController : ControllerBase
         account.IsActive = dto.IsActive;
         account.IncludeInNetWorth = dto.IncludeInNetWorth;
         account.Description = dto.Description;
-        account.Color = dto.Color;
-        account.Icon = dto.Icon;
         account.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();

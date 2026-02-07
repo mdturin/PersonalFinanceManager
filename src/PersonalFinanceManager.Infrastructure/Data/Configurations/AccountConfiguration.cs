@@ -18,9 +18,6 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
         builder.Property(a => a.CurrentBalance)
             .HasColumnType("decimal(18,2)");
 
-        builder.Property(a => a.InitialBalance)
-            .HasColumnType("decimal(18,2)");
-
         builder.Property(a => a.Currency)
             .HasMaxLength(3);
 
