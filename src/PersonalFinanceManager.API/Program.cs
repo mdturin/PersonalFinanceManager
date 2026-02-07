@@ -66,7 +66,7 @@ builder.Services.AddUserManagement(
         options.SignIn.RequireConfirmedEmail = false;
         options.SignIn.RequireConfirmedPhoneNumber = false;
     },
-    migrationsAssembly: "PersonalFinanceManager" 
+    migrationsAssembly: "PersonalFinanceManager.Infrastructure" 
 );
 
 // Register services
