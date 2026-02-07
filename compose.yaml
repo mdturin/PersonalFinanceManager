@@ -3,5 +3,4 @@
     image: personalfinancemanager
     build:
       context: .
-      dockerfile: PersonalFinanceManager/Dockerfile
-
+      dockerfile: src/PersonalFinanceManager.API/Dockerfile
