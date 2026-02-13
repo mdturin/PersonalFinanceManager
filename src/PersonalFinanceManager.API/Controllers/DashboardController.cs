@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PersonalFinanceManager.Application.DTOs.Dashboard;
 using PersonalFinanceManager.Application.Interfaces;
 using System.Security.Claims;
 
@@ -9,7 +8,9 @@ namespace PersonalFinanceManager.API.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/dashboard")]
-public class DashboardController(IDashboardService DashboardService) : ControllerBase
+public class DashboardController(
+    ILogger<DashboardController> logger,
+    IDashboardService DashboardService) : ControllerBase
 {
     private string UserId =>
         User.FindFirstValue(ClaimTypes.NameIdentifier)!;
@@ -17,17 +18,12 @@ public class DashboardController(IDashboardService DashboardService) : Controlle
     [HttpGet("summary")]
     public async Task<IActionResult> GetSummary()
     {
-        DashboardSummaryDto result = null;
-        try
-        {
-            result = await DashboardService
-                .GetSummaryAsync(UserId);
-        }
-        catch(Exception ex)
-        {
-            throw new Exception("Found error on summary service!");
-        }
+        return Ok(await DashboardService.GetSummaryAsync(UserId));
+    }
 
-        return Ok(result);
+    [HttpGet("top-expense-categories")]
+    public async Task<IActionResult> GetTopExpenseCategories()
+    {
+        return Ok(await DashboardService.GetTopExpenseCategoriesAsync(UserId));
     }
 }

@@ -67,4 +67,29 @@ public class DashboardService(ApplicationDbContext Context) : IDashboardService
             .Where(a => a.UserId == userId)
             .SumAsync(a => a.CurrentBalance);
     }
+
+    public async Task<List<MetricModel>> GetTopExpenseCategoriesAsync(string userId)
+    {
+        var topExpenses = await Context.Transactions
+            .Include(t => t.Category)
+            .Where(t => t.UserId == userId && t.Type == TransactionType.Expense && t.Category != null)
+            .GroupBy(t => t.Category!.Name)
+            .Select(g => new
+            {
+                CategoryName = g.Key,
+                TotalAmount  = g.Sum(x => x.Amount)
+            })
+            .OrderByDescending(x => x.TotalAmount)
+            .Take(5)
+            .ToListAsync();
+
+        var banglaBdt = new CultureInfo("en-BD"); // English Bangladesh
+        return topExpenses
+            .Select(e => new MetricModel()
+            {
+                Label = e.CategoryName,
+                Value = e.TotalAmount.ToString("C", banglaBdt)
+            })
+            .ToList();
+    }
 }
