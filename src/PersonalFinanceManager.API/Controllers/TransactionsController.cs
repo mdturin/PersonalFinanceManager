@@ -1,12 +1,13 @@
-using System.ComponentModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using PersonalFinanceManager.Application.DTOs.Transaction;
+using PersonalFinanceManager.Application.Helpers;
 using PersonalFinanceManager.Core.Entities;
 using PersonalFinanceManager.Core.Enums;
 using PersonalFinanceManager.Infrastructure.Data.Context;
+using System.ComponentModel;
+using System.Security.Claims;
 
 namespace PersonalFinanceManager.API.Controllers;
 
@@ -28,7 +29,9 @@ public class TransactionsController : ControllerBase
     // GET: api/transactions
     [HttpGet]
     public async Task<IActionResult> GetTransactions(
+        [FromQuery] string? type = null,
         [FromQuery] string? accountId = null,
+        [FromQuery] string? categoryName = null,
         [FromQuery] DateTime? startDate = null,
         [FromQuery] DateTime? endDate = null)
     {
@@ -37,8 +40,21 @@ public class TransactionsController : ControllerBase
             .Where(t => t.Account.UserId == UserId)
             .AsQueryable();
 
-        if (!string.IsNullOrEmpty(accountId))
+        if (!string.IsNullOrWhiteSpace(type) && Enum.TryParse<TransactionType>(type, true, out var transactionType))
+        {
+            query = query.Where(t => t.Type == transactionType);
+        }
+
+        if (!string.IsNullOrWhiteSpace(accountId))
+        {
             query = query.Where(t => t.AccountId == accountId);
+        }
+
+        if (!string.IsNullOrWhiteSpace(categoryName))
+        {
+            var categoryId = categoryName.ToCheckSum();
+            query = query.Where(t => t.CategoryId == categoryId);
+        }
 
         if (startDate.HasValue)
             query = query.Where(t => t.Date >= startDate.Value);
@@ -47,20 +63,31 @@ public class TransactionsController : ControllerBase
             query = query.Where(t => t.Date <= endDate.Value);
 
         var transactions = await query
-            .Select(t => new TransactionDto
+            .Include(t => t.Category)
+            .Select(t => new
             {
                 Id = t.Id,
                 AccountId = t.AccountId,
                 TargetAccountId = t.TransferToAccountId,
-                Type = t.Type,
+                Type = t.Type, // can't process toString in ef sql
                 Amount = t.Amount,
-                CategoryId = t.CategoryId,
+                CategoryName = t.Category!.Name,
                 Description = t.Description,
                 Date = t.Date
             })
             .ToListAsync();
 
-        return Ok(transactions);
+        return Ok(transactions.Select(t => new TransactionDto()
+        {
+            Id = t.Id,
+            AccountId = t.AccountId,
+            TargetAccountId = t.TargetAccountId,
+            Type = t.Type.ToString(),
+            Amount = t.Amount,
+            CategoryName = t.CategoryName,
+            Description = t.Description,
+            Date = t.Date
+        }));
     }
 
     // GET: api/transactions/{id}
@@ -68,16 +95,16 @@ public class TransactionsController : ControllerBase
     public async Task<IActionResult> GetTransaction(string id)
     {
         var transaction = await _context.Transactions
-            .Include(t => t.Account)
-            .Where(t => t.Id == id && t.Account.UserId == UserId)
-            .Select(t => new TransactionDto
+            .Include(t => t.Category)
+            .Where(t => t.Id == id && t.UserId == UserId)
+            .Select(t => new
             {
                 Id = t.Id,
                 AccountId = t.AccountId,
                 TargetAccountId = t.TransferToAccountId,
-                Type = t.Type,
+                Type = t.Type, // can't process toString in ef sql
                 Amount = t.Amount,
-                CategoryId = t.CategoryId,
+                CategoryName = t.Category!.Name,
                 Description = t.Description,
                 Date = t.Date
             })
@@ -85,7 +112,17 @@ public class TransactionsController : ControllerBase
 
         return (transaction == null)
             ? NotFound()
-            : Ok(transaction);
+            : Ok(new TransactionDto()
+            {
+                Id = transaction.Id,
+                AccountId = transaction.AccountId,
+                TargetAccountId = transaction.TargetAccountId,
+                Type = transaction.Type.ToString(),
+                Amount = transaction.Amount,
+                CategoryName = transaction.CategoryName,
+                Description = transaction.Description,
+                Date = transaction.Date
+            });
     }
 
     // POST: api/transactions

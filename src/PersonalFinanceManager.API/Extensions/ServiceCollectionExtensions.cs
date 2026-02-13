@@ -8,6 +8,7 @@ using PersonalFinanceManager.Core.Configurations;
 using PersonalFinanceManager.Core.Entities;
 using PersonalFinanceManager.Core.Enums;
 using PersonalFinanceManager.Infrastructure.Data.Context;
+using PersonalFinanceManager.Application.Helpers;
 
 namespace PersonalFinanceManager.API.Extensions;
 
@@ -237,7 +238,23 @@ public static class ServiceCollectionExtensions
 
         if (hasAnyData)
         {
-            return;
+            dbContext.Accounts
+                .RemoveRange(await dbContext.Accounts.Where(a => a.UserId == dummyUser.Id).ToListAsync());
+
+            dbContext.Categories
+                .RemoveRange(await dbContext.Categories.Where(a => a.UserId == dummyUser.Id).ToListAsync());
+
+            dbContext.Transactions
+                .RemoveRange(await dbContext.Transactions.Where(a => a.UserId == dummyUser.Id).ToListAsync());
+
+            dbContext.Budgets
+                .RemoveRange(await dbContext.Budgets.Where(a => a.UserId == dummyUser.Id).ToListAsync());
+
+            dbContext.Goals
+                .RemoveRange(await dbContext.Goals.Where(a => a.UserId == dummyUser.Id).ToListAsync());
+
+            dbContext.RecurringTransactions
+                .RemoveRange(await dbContext.RecurringTransactions.Where(a => a.UserId == dummyUser.Id).ToListAsync());
         }
 
         var checkingAccount = new Account
@@ -266,7 +283,7 @@ public static class ServiceCollectionExtensions
 
         var salaryCategory = new Category
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "Salary".ToCheckSum(),
             UserId = dummyUser.Id,
             Name = "Salary",
             Type = CategoryType.Income,
@@ -277,7 +294,7 @@ public static class ServiceCollectionExtensions
 
         var groceriesCategory = new Category
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "Groceries".ToCheckSum(),
             UserId = dummyUser.Id,
             Name = "Groceries",
             Type = CategoryType.Expense,
@@ -288,7 +305,7 @@ public static class ServiceCollectionExtensions
 
         var transportCategory = new Category
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "Transport".ToCheckSum(),
             UserId = dummyUser.Id,
             Name = "Transport",
             Type = CategoryType.Expense,
