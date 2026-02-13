@@ -7,8 +7,8 @@ public class Goal : BaseEntity
     public string UserId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
-    public decimal TargetAmount { get; set; }
-    public decimal CurrentAmount { get; set; }
+    public double TargetAmount { get; set; }
+    public double CurrentAmount { get; set; }
     public DateTime? TargetDate { get; set; }
     public GoalStatus Status { get; set; } = GoalStatus.InProgress;
     public string? Icon { get; set; }

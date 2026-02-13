@@ -158,7 +158,7 @@ namespace PersonalFinanceManager.Infrastructure.Migrations
                         .HasMaxLength(3)
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("CurrentBalance")
+                    b.Property<double>("CurrentBalance")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Description")
@@ -309,10 +309,10 @@ namespace PersonalFinanceManager.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("AlertThreshold")
+                    b.Property<double>("AlertThreshold")
                         .HasColumnType("decimal(5,2)");
 
-                    b.Property<decimal>("Amount")
+                    b.Property<double>("Amount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("CategoryId")
@@ -419,7 +419,7 @@ namespace PersonalFinanceManager.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("CurrentAmount")
+                    b.Property<double>("CurrentAmount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Description")
@@ -440,7 +440,7 @@ namespace PersonalFinanceManager.Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
-                    b.Property<decimal>("TargetAmount")
+                    b.Property<double>("TargetAmount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("TargetDate")
@@ -471,7 +471,7 @@ namespace PersonalFinanceManager.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("Amount")
+                    b.Property<double>("Amount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("CategoryId")
@@ -535,7 +535,7 @@ namespace PersonalFinanceManager.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("Amount")
+                    b.Property<double>("Amount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("CategoryId")
@@ -577,6 +577,10 @@ namespace PersonalFinanceManager.Infrastructure.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
@@ -588,6 +592,8 @@ namespace PersonalFinanceManager.Infrastructure.Migrations
                     b.HasIndex("RecurringTransactionId");
 
                     b.HasIndex("TransferToAccountId");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("AccountId", "Date");
 
@@ -752,6 +758,12 @@ namespace PersonalFinanceManager.Infrastructure.Migrations
                         .HasForeignKey("TransferToAccountId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("PersonalFinanceManager.Core.Entities.ApplicationUser", "User")
+                        .WithMany("Transactions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Account");
 
                     b.Navigation("Category");
@@ -759,6 +771,8 @@ namespace PersonalFinanceManager.Infrastructure.Migrations
                     b.Navigation("RecurringTransaction");
 
                     b.Navigation("TransferToAccount");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("PersonalFinanceManager.Core.Entities.Account", b =>
@@ -777,6 +791,8 @@ namespace PersonalFinanceManager.Infrastructure.Migrations
                     b.Navigation("Categories");
 
                     b.Navigation("Goals");
+
+                    b.Navigation("Transactions");
                 });
 
             modelBuilder.Entity("PersonalFinanceManager.Core.Entities.Category", b =>

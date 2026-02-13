@@ -8,7 +8,7 @@ public class RecurringTransaction : BaseEntity
     public string AccountId { get; set; }
     public string? CategoryId { get; set; }
     public TransactionType Type { get; set; }
-    public decimal Amount { get; set; }
+    public double Amount { get; set; }
     public string Description { get; set; } = string.Empty;
     public RecurrenceFrequency Frequency { get; set; }
     public int FrequencyInterval { get; set; } = 1; // e.g., every 2 weeks

@@ -76,6 +76,7 @@ builder.Services.AddSingleton<IConfigService, ConfigService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 // Add CORS (if needed)
 builder.Services.AddCors(options =>

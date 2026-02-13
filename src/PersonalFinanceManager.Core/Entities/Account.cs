@@ -8,7 +8,7 @@ public class Account : BaseEntity
     public string Name { get; set; } = string.Empty;
     public AccountType Type { get; set; }
     public string Institution { get; set; } = string.Empty;
-    public decimal CurrentBalance { get; set; }
+    public double CurrentBalance { get; set; }
     public string Currency { get; set; } = "BDT";
     public string? Description { get; set; }
     public bool IsActive { get; set; } = true;
