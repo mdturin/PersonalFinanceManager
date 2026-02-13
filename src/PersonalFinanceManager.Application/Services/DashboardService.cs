@@ -10,7 +10,7 @@ namespace PersonalFinanceManager.Application.Services;
 
 public class DashboardService(ApplicationDbContext Context) : IDashboardService
 {
-    public async Task<DashboardSummaryDto> GetSummaryAsync(string userId)
+    public async Task<List<MetricModel>> GetSummaryAsync(string userId)
     {
         if(string.IsNullOrWhiteSpace(userId))
         {
@@ -18,9 +18,13 @@ public class DashboardService(ApplicationDbContext Context) : IDashboardService
         }
 
         var metrics = new List<MetricModel>();
+        
+        var banglaBdt = new CultureInfo("en-BD");
+        banglaBdt.NumberFormat.CurrencySymbol = "৳";
+        banglaBdt.NumberFormat.CurrencyPositivePattern = 2;
+
         var createMetricModel = new Func<string, double, MetricModel>((label, value) =>
         {
-            var banglaBdt = new CultureInfo("en-BD"); // English Bangladesh
             return new MetricModel
             {
                 Label = label,
@@ -39,12 +43,7 @@ public class DashboardService(ApplicationDbContext Context) : IDashboardService
         var totalSaving = totalIncome - totalExpense;
         metrics.Add(createMetricModel("Total Saving", totalSaving));
 
-        var dashboardSummary = new DashboardSummaryDto
-        {
-            Metrics = metrics
-        };
-
-        return dashboardSummary;
+        return metrics;
     }
 
     private Task<double> GetTotalExpenseAsync(string userId)
@@ -83,7 +82,10 @@ public class DashboardService(ApplicationDbContext Context) : IDashboardService
             .Take(5)
             .ToListAsync();
 
-        var banglaBdt = new CultureInfo("en-BD"); // English Bangladesh
+        var banglaBdt = new CultureInfo("en-BD");
+        banglaBdt.NumberFormat.CurrencySymbol = "৳";
+        banglaBdt.NumberFormat.CurrencyPositivePattern = 2;
+
         return topExpenses
             .Select(e => new MetricModel()
             {
@@ -107,7 +109,10 @@ public class DashboardService(ApplicationDbContext Context) : IDashboardService
             })
             .ToListAsync();
 
-        var banglaBdt = new CultureInfo("en-BD"); // English Bangladesh
+        var banglaBdt = new CultureInfo("en-BD"); 
+        banglaBdt.NumberFormat.CurrencySymbol = "৳"; 
+        banglaBdt.NumberFormat.CurrencyPositivePattern = 2;
+
         return topExpenses
             .Select(e => new MetricModel()
             {

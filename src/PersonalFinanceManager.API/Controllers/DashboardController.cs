@@ -8,9 +8,7 @@ namespace PersonalFinanceManager.API.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/dashboard")]
-public class DashboardController(
-    ILogger<DashboardController> logger,
-    IDashboardService DashboardService) : ControllerBase
+public class DashboardController(IDashboardService DashboardService) : ControllerBase
 {
     private string UserId =>
         User.FindFirstValue(ClaimTypes.NameIdentifier)!;
