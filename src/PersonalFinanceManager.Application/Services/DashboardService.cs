@@ -92,4 +92,28 @@ public class DashboardService(ApplicationDbContext Context) : IDashboardService
             })
             .ToList();
     }
+
+    public async Task<List<MetricModel>> GetRecentTransactionsAsync(string userId)
+    {
+        var topExpenses = await Context.Transactions
+            .Where(t => t.UserId == userId && t.Type == TransactionType.Expense)
+            .OrderByDescending(t => t.Amount)
+            .Take(5)
+            .Include(t => t.Category)
+            .Select(t => new
+            {
+                CategoryName = t.Category!.Name,
+                TotalAmount = t.Amount
+            })
+            .ToListAsync();
+
+        var banglaBdt = new CultureInfo("en-BD"); // English Bangladesh
+        return topExpenses
+            .Select(e => new MetricModel()
+            {
+                Label = e.CategoryName,
+                Value = e.TotalAmount.ToString("C", banglaBdt)
+            })
+            .ToList();
+    }
 }

@@ -26,4 +26,10 @@ public class DashboardController(
     {
         return Ok(await DashboardService.GetTopExpenseCategoriesAsync(UserId));
     }
+
+    [HttpGet("recent-transactions")]
+    public async Task<IActionResult> GetRecentTransactionsAsync()
+    {
+        return Ok(await DashboardService.GetRecentTransactionsAsync(UserId));
+    }
 }
