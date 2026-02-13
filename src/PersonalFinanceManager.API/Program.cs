@@ -117,6 +117,14 @@ using (var scope = app.Services.CreateScope())
             firstName: "System",
             lastName: "Administrator"
         );
+
+        // Seed dummy user with sample finance data
+        await services.SeedDummyUserDataAsync(
+            email: "dummy.user@example.com",
+            password: "Dummy@123456",
+            firstName: "Dummy",
+            lastName: "User"
+        );
         
         Console.WriteLine("Database seeded successfully!");
     }

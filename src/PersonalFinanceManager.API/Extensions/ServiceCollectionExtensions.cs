@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PersonalFinanceManager.Core.Configurations;
 using PersonalFinanceManager.Core.Entities;
+using PersonalFinanceManager.Core.Enums;
 using PersonalFinanceManager.Infrastructure.Data.Context;
 
 namespace PersonalFinanceManager.API.Extensions;
@@ -187,5 +188,218 @@ public static class ServiceCollectionExtensions
                 await userManager.AddToRoleAsync(adminUser, "Admin");
             }
         }
+    }
+
+    /// <summary>
+    /// Seeds a dummy user and related finance data across all core models.
+    /// </summary>
+    public static async Task SeedDummyUserDataAsync(
+        this IServiceProvider serviceProvider,
+        string email,
+        string password,
+        string firstName,
+        string lastName)
+    {
+        var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
+
+        var dummyUser = await userManager.FindByEmailAsync(email);
+        if (dummyUser == null)
+        {
+            dummyUser = new ApplicationUser
+            {
+                Email = email,
+                UserName = email,
+                FirstName = firstName,
+                LastName = lastName,
+                EmailConfirmed = true,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                Currency = "USD",
+                TimeZone = "UTC"
+            };
+
+            var result = await userManager.CreateAsync(dummyUser, password);
+            if (!result.Succeeded)
+            {
+                return;
+            }
+
+            await userManager.AddToRoleAsync(dummyUser, "User");
+        }
+
+        var hasAnyData = await dbContext.Accounts.AnyAsync(a => a.UserId == dummyUser.Id)
+            || await dbContext.Categories.AnyAsync(c => c.UserId == dummyUser.Id)
+            || await dbContext.Transactions.AnyAsync(t => t.UserId == dummyUser.Id)
+            || await dbContext.Budgets.AnyAsync(b => b.UserId == dummyUser.Id)
+            || await dbContext.Goals.AnyAsync(g => g.UserId == dummyUser.Id)
+            || await dbContext.RecurringTransactions.AnyAsync(rt => rt.UserId == dummyUser.Id);
+
+        if (hasAnyData)
+        {
+            return;
+        }
+
+        var checkingAccount = new Account
+        {
+            Id = Guid.NewGuid().ToString(),
+            UserId = dummyUser.Id,
+            Name = "Main Checking",
+            Type = AccountType.Checking,
+            Institution = "Demo Bank",
+            CurrentBalance = 3250,
+            Currency = "USD",
+            Description = "Primary day-to-day account"
+        };
+
+        var savingsAccount = new Account
+        {
+            Id = Guid.NewGuid().ToString(),
+            UserId = dummyUser.Id,
+            Name = "Emergency Savings",
+            Type = AccountType.Savings,
+            Institution = "Demo Bank",
+            CurrentBalance = 9400,
+            Currency = "USD",
+            Description = "Emergency fund account"
+        };
+
+        var salaryCategory = new Category
+        {
+            Id = Guid.NewGuid().ToString(),
+            UserId = dummyUser.Id,
+            Name = "Salary",
+            Type = CategoryType.Income,
+            Icon = "wallet",
+            Color = "#22C55E",
+            SortOrder = 1
+        };
+
+        var groceriesCategory = new Category
+        {
+            Id = Guid.NewGuid().ToString(),
+            UserId = dummyUser.Id,
+            Name = "Groceries",
+            Type = CategoryType.Expense,
+            Icon = "shopping-cart",
+            Color = "#3B82F6",
+            SortOrder = 2
+        };
+
+        var transportCategory = new Category
+        {
+            Id = Guid.NewGuid().ToString(),
+            UserId = dummyUser.Id,
+            Name = "Transport",
+            Type = CategoryType.Expense,
+            Icon = "car",
+            Color = "#F59E0B",
+            SortOrder = 3
+        };
+
+        var recurringSalary = new RecurringTransaction
+        {
+            Id = Guid.NewGuid().ToString(),
+            UserId = dummyUser.Id,
+            AccountId = checkingAccount.Id,
+            CategoryId = salaryCategory.Id,
+            Type = TransactionType.Income,
+            Amount = 5000,
+            Description = "Monthly Salary",
+            Frequency = RecurrenceFrequency.Monthly,
+            FrequencyInterval = 1,
+            StartDate = DateTime.UtcNow.Date.AddMonths(-6),
+            NextOccurrence = DateTime.UtcNow.Date.AddMonths(1)
+        };
+
+        var transactions = new List<Transaction>
+        {
+            new()
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserId = dummyUser.Id,
+                AccountId = checkingAccount.Id,
+                CategoryId = salaryCategory.Id,
+                Type = TransactionType.Income,
+                Amount = 5000,
+                Date = DateTime.UtcNow.Date.AddDays(-10),
+                Description = "Salary for current month",
+                IsRecurring = true,
+                RecurringTransactionId = recurringSalary.Id,
+                Tags = "income,payroll"
+            },
+            new()
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserId = dummyUser.Id,
+                AccountId = checkingAccount.Id,
+                CategoryId = groceriesCategory.Id,
+                Type = TransactionType.Expense,
+                Amount = 145.75,
+                Date = DateTime.UtcNow.Date.AddDays(-5),
+                Description = "Weekly grocery shopping",
+                Tags = "food,home"
+            },
+            new()
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserId = dummyUser.Id,
+                AccountId = checkingAccount.Id,
+                CategoryId = transportCategory.Id,
+                Type = TransactionType.Expense,
+                Amount = 42.30,
+                Date = DateTime.UtcNow.Date.AddDays(-3),
+                Description = "Fuel refill",
+                Tags = "car,fuel"
+            },
+            new()
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserId = dummyUser.Id,
+                AccountId = checkingAccount.Id,
+                TransferToAccountId = savingsAccount.Id,
+                Type = TransactionType.Transfer,
+                Amount = 600,
+                Date = DateTime.UtcNow.Date.AddDays(-2),
+                Description = "Monthly savings transfer",
+                Notes = "Auto transfer to emergency fund"
+            }
+        };
+
+        var groceryBudget = new Budget
+        {
+            Id = Guid.NewGuid().ToString(),
+            UserId = dummyUser.Id,
+            CategoryId = groceriesCategory.Id,
+            Name = "Monthly Groceries Budget",
+            Amount = 600,
+            Period = BudgetPeriod.Monthly,
+            StartDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1),
+            AlertThreshold = 75
+        };
+
+        var emergencyGoal = new Goal
+        {
+            Id = Guid.NewGuid().ToString(),
+            UserId = dummyUser.Id,
+            Name = "Emergency Fund",
+            Description = "Build a 6-month emergency fund",
+            TargetAmount = 15000,
+            CurrentAmount = 9400,
+            TargetDate = DateTime.UtcNow.Date.AddMonths(9),
+            Status = GoalStatus.InProgress,
+            Icon = "target",
+            Color = "#8B5CF6",
+            Priority = 1
+        };
+
+        await dbContext.Accounts.AddRangeAsync(checkingAccount, savingsAccount);
+        await dbContext.Categories.AddRangeAsync(salaryCategory, groceriesCategory, transportCategory);
+        await dbContext.RecurringTransactions.AddAsync(recurringSalary);
+        await dbContext.Transactions.AddRangeAsync(transactions);
+        await dbContext.Budgets.AddAsync(groceryBudget);
+        await dbContext.Goals.AddAsync(emergencyGoal);
+
+        await dbContext.SaveChangesAsync();
     }
 }
