@@ -141,7 +141,7 @@ public class AccountsController : ControllerBase
     private async Task<double> CalculateMonthlyCashFlow(DateTime startOfMonth, DateTime endOfMonth)
     {
         var monthlyTransactions = _context.Transactions
-                    .Where(t => t.UserId == UserId && t.Date >= startOfMonth && t.Date < endOfMonth);
+            .Where(t => t.UserId == UserId && t.Date >= startOfMonth && t.Date < endOfMonth);
 
         var totalIncome = await monthlyTransactions
             .Where(t => t.Type == TransactionType.Income)
@@ -171,6 +171,51 @@ public class AccountsController : ControllerBase
         };
 
         return item;
+    }
+
+    // GET: api/accounts/account-mix
+    [HttpGet("account-mix")]
+    public async Task<IActionResult> GetAccountMix()
+    {
+        var mixture = await _context.Accounts
+            .Where(a => a.UserId == UserId)
+            .GroupBy(a => a.Type)
+            .Select(g => new
+            {
+                Type = g.Key,
+                Value = g.Sum(a => a.CurrentBalance)
+            })
+            .OrderByDescending(s => s.Value)
+            .ToListAsync();
+
+        var totalBalance = mixture.Sum(m => m.Value);
+
+        var metrics = mixture.Select(m =>
+        {
+            var contrib = totalBalance == 0
+                ? 0
+                : (m.Value / totalBalance) * 100;
+
+            var metric = new MetricModel
+            {
+                Label = m.Type.ToString(),
+                Value = $"{contrib:0.00}%",
+                Trend = GetTrendValue(contrib)
+            };
+
+            return metric;
+        }).ToList();
+
+        return Ok(metrics);
+    }
+
+    private static string GetTrendValue(double value)
+    {
+        if (value >= 60) return "bg-success";
+        if (value >= 40) return "";
+        if (value >= 20) return "bg-warning";
+
+        return "bg-danger";
     }
 
     // GET: api/accounts
