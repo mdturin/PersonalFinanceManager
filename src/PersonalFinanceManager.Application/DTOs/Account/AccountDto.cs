@@ -4,6 +4,7 @@ namespace PersonalFinanceManager.Application.DTOs.Account;
 
 public class AccountDto
 {
+    public string Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public AccountType Type { get; set; }
     public string Institution { get; set; } = string.Empty;

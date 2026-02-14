@@ -6,7 +6,7 @@ public class CreateTransactionDto
 {
     public string AccountId { get; set; } = string.Empty;
     public string? TargetAccountId { get; set; } // for transfers
-    public TransactionType Type { get; set; }
+    public string Type { get; set; }
     public double Amount { get; set; }
     public string? CategoryId { get; set; }
     public string? Description { get; set; }

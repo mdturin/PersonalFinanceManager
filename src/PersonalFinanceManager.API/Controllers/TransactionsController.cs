@@ -144,19 +144,21 @@ public class TransactionsController : ControllerBase
                 return BadRequest("Invalid target account.");
         }
 
+        var transactionType = Enum.Parse<TransactionType>(dto.Type, true);
+
         // Adjust balances
-        if (dto.Type == TransactionType.Expense)
+        if (transactionType == TransactionType.Expense)
             account.CurrentBalance -= dto.Amount;
-        else if (dto.Type == TransactionType.Income)
+        else if (transactionType == TransactionType.Income)
             account.CurrentBalance += dto.Amount;
-        else if (dto.Type == TransactionType.Transfer && targetAccount != null)
+        else if (transactionType == TransactionType.Transfer && targetAccount != null)
         {
             account.CurrentBalance -= dto.Amount;
             targetAccount.CurrentBalance += dto.Amount;
         }
         else
         {
-            throw new InvalidEnumArgumentException(nameof(TransactionType), (int)dto.Type, typeof(TransactionType));
+            throw new InvalidEnumArgumentException(nameof(TransactionType), (int)transactionType, typeof(TransactionType));
         }
         
         var transaction = new Transaction
@@ -164,7 +166,7 @@ public class TransactionsController : ControllerBase
             Id = Guid.NewGuid().ToString(),
             AccountId = dto.AccountId,
             TransferToAccountId = dto.TargetAccountId,
-            Type = dto.Type,
+            Type = transactionType,
             Amount = dto.Amount,
             CategoryId = dto.CategoryId,
             Description = dto.Description,

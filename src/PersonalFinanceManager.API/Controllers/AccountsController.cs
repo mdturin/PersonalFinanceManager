@@ -30,6 +30,7 @@ public class AccountsController : ControllerBase
             .Where(a => a.UserId == UserId)
             .Select(a => new AccountDto
             {
+                Id = a.Id,
                 Name = a.Name,
                 Type = a.Type,
                 Institution = a.Institution,
