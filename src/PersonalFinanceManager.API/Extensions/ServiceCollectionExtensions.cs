@@ -199,7 +199,8 @@ public static class ServiceCollectionExtensions
         string email,
         string password,
         string firstName,
-        string lastName)
+        string lastName,
+        bool needCleanup = false)
     {
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
@@ -229,14 +230,7 @@ public static class ServiceCollectionExtensions
             await userManager.AddToRoleAsync(dummyUser, "User");
         }
 
-        var hasAnyData = await dbContext.Accounts.AnyAsync(a => a.UserId == dummyUser.Id)
-            || await dbContext.Categories.AnyAsync(c => c.UserId == dummyUser.Id)
-            || await dbContext.Transactions.AnyAsync(t => t.UserId == dummyUser.Id)
-            || await dbContext.Budgets.AnyAsync(b => b.UserId == dummyUser.Id)
-            || await dbContext.Goals.AnyAsync(g => g.UserId == dummyUser.Id)
-            || await dbContext.RecurringTransactions.AnyAsync(rt => rt.UserId == dummyUser.Id);
-
-        if (hasAnyData)
+        if (needCleanup)
         {
             dbContext.Accounts
                 .RemoveRange(await dbContext.Accounts.Where(a => a.UserId == dummyUser.Id).ToListAsync());
@@ -255,6 +249,19 @@ public static class ServiceCollectionExtensions
 
             dbContext.RecurringTransactions
                 .RemoveRange(await dbContext.RecurringTransactions.Where(a => a.UserId == dummyUser.Id).ToListAsync());
+        }
+
+        var hasAnyData = await Task.FromResult(needCleanup)
+            || await dbContext.Accounts.AnyAsync(a => a.UserId == dummyUser.Id)
+            || await dbContext.Categories.AnyAsync(c => c.UserId == dummyUser.Id)
+            || await dbContext.Transactions.AnyAsync(t => t.UserId == dummyUser.Id)
+            || await dbContext.Budgets.AnyAsync(b => b.UserId == dummyUser.Id)
+            || await dbContext.Goals.AnyAsync(g => g.UserId == dummyUser.Id)
+            || await dbContext.RecurringTransactions.AnyAsync(rt => rt.UserId == dummyUser.Id);
+
+        if (!needCleanup && hasAnyData)
+        {
+            return;
         }
 
         var checkingAccount = new Account

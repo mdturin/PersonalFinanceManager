@@ -63,12 +63,12 @@ public class TransactionsController : ControllerBase
             query = query.Where(t => t.Date <= endDate.Value);
 
         var transactions = await query
+            .Include(t => t.Account)
             .Include(t => t.Category)
             .Select(t => new
             {
                 Id = t.Id,
-                AccountId = t.AccountId,
-                TargetAccountId = t.TransferToAccountId,
+                AccountName = t.Account.Name,
                 Type = t.Type, // can't process toString in ef sql
                 Amount = t.Amount,
                 CategoryName = t.Category!.Name,
@@ -80,8 +80,7 @@ public class TransactionsController : ControllerBase
         return Ok(transactions.Select(t => new TransactionDto()
         {
             Id = t.Id,
-            AccountId = t.AccountId,
-            TargetAccountId = t.TargetAccountId,
+            AccountName = t.AccountName,
             Type = t.Type.ToString(),
             Amount = t.Amount,
             CategoryName = t.CategoryName,
@@ -95,12 +94,13 @@ public class TransactionsController : ControllerBase
     public async Task<IActionResult> GetTransaction(string id)
     {
         var transaction = await _context.Transactions
+            .Include(t => t.Account)
             .Include(t => t.Category)
             .Where(t => t.Id == id && t.UserId == UserId)
             .Select(t => new
             {
                 Id = t.Id,
-                AccountId = t.AccountId,
+                AccountName = t.Account.Name,
                 TargetAccountId = t.TransferToAccountId,
                 Type = t.Type, // can't process toString in ef sql
                 Amount = t.Amount,
@@ -115,8 +115,7 @@ public class TransactionsController : ControllerBase
             : Ok(new TransactionDto()
             {
                 Id = transaction.Id,
-                AccountId = transaction.AccountId,
-                TargetAccountId = transaction.TargetAccountId,
+                AccountName = transaction.AccountName,
                 Type = transaction.Type.ToString(),
                 Amount = transaction.Amount,
                 CategoryName = transaction.CategoryName,
