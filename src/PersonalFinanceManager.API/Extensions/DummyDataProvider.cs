@@ -252,7 +252,9 @@ public static class DummyDataProvider
             Institution = "Demo Bank",
             CurrentBalance = 3250,
             Currency = "USD",
-            Description = "Primary day-to-day account"
+            Description = "Primary day-to-day account",
+            CreatedAt = DateTime.UtcNow.Date.AddMonths(-6),
+            UpdatedAt = DateTime.UtcNow.Date.AddMonths(-1)
         };
 
         var savingsAccount = new Account
@@ -264,7 +266,9 @@ public static class DummyDataProvider
             Institution = "Demo Bank",
             CurrentBalance = 9400,
             Currency = "USD",
-            Description = "Emergency fund account"
+            Description = "Emergency fund account",
+            CreatedAt = DateTime.UtcNow.Date.AddMonths(-4),
+            UpdatedAt = DateTime.UtcNow.Date.AddMonths(-1)
         };
 
         await dbContext.Accounts.AddRangeAsync(checkingAccount, savingsAccount);

@@ -123,7 +123,8 @@ using (var scope = app.Services.CreateScope())
             email: "dummy.user@example.com",
             password: "Dummy@123456",
             firstName: "Dummy",
-            lastName: "User"
+            lastName: "User",
+            needCleanup: true
         );
         
         Console.WriteLine("Database seeded successfully!");
