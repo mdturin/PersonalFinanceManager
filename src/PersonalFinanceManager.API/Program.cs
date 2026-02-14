@@ -3,6 +3,7 @@ using PersonalFinanceManager.API.Extensions;
 using PersonalFinanceManager.Application.Interfaces;
 using PersonalFinanceManager.Application.Services;
 using PersonalFinanceManager.Infrastructure.Data.Context;
+using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -93,8 +94,8 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-const bool seedNeeded = false;
-const bool dummyDataCleanupNeeded = false;
+const bool seedNeeded = true;
+const bool dummyDataCleanupNeeded = true;
 
 // Seed database with roles and admin user
 using (var scope = app.Services.CreateScope())
@@ -109,6 +110,8 @@ using (var scope = app.Services.CreateScope())
 
         if(seedNeeded)
         {
+            Debugger.Break();
+
             // Seed Configs
             await services.SeedConfigAsync();
 

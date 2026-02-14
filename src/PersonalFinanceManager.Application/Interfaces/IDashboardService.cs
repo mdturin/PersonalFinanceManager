@@ -8,4 +8,5 @@ public interface IDashboardService
     Task<List<MetricModel>> GetSummaryAsync(string userId);
     Task<List<MetricModel>> GetTopExpenseCategoriesAsync(string userId);
     Task<List<MetricModel>> GetRecentTransactionsAsync(string userId);
+    Task<List<MetricModel>> GetExpenseTrendAsync(string userId);
 }

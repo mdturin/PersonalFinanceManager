@@ -170,8 +170,7 @@ public class TransactionsController : ControllerBase
             Amount = dto.Amount,
             CategoryId = dto.CategoryId,
             Description = dto.Description,
-            Date = dto.Date,
-            CreatedAt = DateTime.UtcNow
+            Date = DateTime.UtcNow
         };
 
         _context.Transactions.Add(transaction);

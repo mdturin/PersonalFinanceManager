@@ -9,8 +9,8 @@ public class Transaction : BaseEntity
     public string? CategoryId { get; set; }
     public string? TransferToAccountId { get; set; } // For transfers
     public TransactionType Type { get; set; }
-    public double Amount { get; set; }
     public DateTime Date { get; set; }
+    public double Amount { get; set; }
     public string? Description { get; set; }
     public string? Notes { get; set; }
     public string? Reference { get; set; } // Check number, invoice number, etc.

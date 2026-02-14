@@ -96,13 +96,12 @@ public static class ServiceCollectionExtensions
 
     public static async Task SeedConfigAsync(this IServiceProvider serviceProvider)
     {
-        var liteDbContext = serviceProvider.GetService<LiteDbContext>();
-        if(liteDbContext == null)
-            throw new Exception("LiteDbContext is not configured.");
-
+        var liteDbContext = serviceProvider.GetService<LiteDbContext>() 
+            ?? throw new Exception("LiteDbContext is not configured.");
+        
         var config = new SideNavConfig()
         {
-            Version = "2026-02-07-01",
+            Version = "2026-02-07-02",
             Sections =
             [
                 new NavSection()
@@ -113,7 +112,7 @@ public static class ServiceCollectionExtensions
                         new NavItem()
                         {
                             Label = "Dashboard",
-                            Route = "/",
+                            Route = "/dashboard",
                             Active = true,
                         },
                         

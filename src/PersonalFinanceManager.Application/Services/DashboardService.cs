@@ -121,4 +121,52 @@ public class DashboardService(ApplicationDbContext Context) : IDashboardService
             })
             .ToList();
     }
+
+    public async Task<List<MetricModel>> GetExpenseTrendAsync(string userId)
+    {
+        var now = DateTime.UtcNow;
+
+        var startDate = new DateTime(now.Year, 1, 1);
+        var endDate = startDate.AddYears(1);
+
+        var expensesCurrentYear = await Context.Transactions
+            .Where(t => t.UserId == userId && t.Type == TransactionType.Expense)
+            .Where(t => t.Date >= startDate && t.Date < endDate)
+            .GroupBy(t => t.Date.Month)
+            .Select(g => new
+            {
+                Month = g.Key,
+                TotalAmount = g.Sum(t => t.Amount)
+            })
+            .ToListAsync();
+
+        return expensesCurrentYear
+            .Select(ex => new MetricModel()
+            {
+                Label = GetMonthName(ex.Month),
+                Value = ex.TotalAmount.ToString()
+            })
+            .ToList();
+    }
+
+    private static string GetMonthName(int key)
+    {
+        return key switch
+        {
+            1 => "Jan",
+            2 => "Feb",
+            3 => "Mar",
+            4 => "Apr",
+            5 => "May",
+            6 => "Jun",
+            7 => "Jul",
+            8 => "Aug",
+            9 => "Sep",
+            10 => "Oct",
+            11 => "Nov",
+            12 => "Dec",
+            _ => throw new ArgumentOutOfRangeException(nameof(key), "Invalid month number")
+        };
+    }
+
 }

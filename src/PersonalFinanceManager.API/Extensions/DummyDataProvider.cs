@@ -43,10 +43,16 @@ public static class DummyDataProvider
         (var checkingAccount, var savingsAccount) = await CreateAccounts(dbContext, dummyUser);
 
         // Creating Categories
-        (var salaryCategory, var groceriesCategory, var transportCategory) = await CreateCategories(dbContext, dummyUser);
+        var categories = await CreateCategories(dbContext, dummyUser);
+
+        var salaryCategory = categories["Salary"];
+        var groceriesCategory = categories["Groceries"];
+        var transportCategory = categories["Transport"];
+        var shoppingCategory = categories["Shopping"];
 
         // Creating Recurring Transactions
-        var recurringSalary = await CreateRecurringTransactions(dbContext, dummyUser, checkingAccount, salaryCategory);
+        var recurringSalary = await CreateRecurringTransactions(
+            dbContext, dummyUser, checkingAccount, salaryCategory);
 
         // Creating Transactions
         await CreateTransactions(
@@ -54,9 +60,7 @@ public static class DummyDataProvider
             dummyUser,
             checkingAccount,
             savingsAccount,
-            salaryCategory,
-            groceriesCategory,
-            transportCategory,
+            categories,
             recurringSalary
         );
 
@@ -113,13 +117,30 @@ public static class DummyDataProvider
         ApplicationUser dummyUser, 
         Account checkingAccount, 
         Account savingsAccount, 
-        Category salaryCategory, 
-        Category groceriesCategory, 
-        Category transportCategory, 
+        Dictionary<string, Category> categories,
         RecurringTransaction recurringSalary)
     {
+        var salaryCategory = categories["Salary"];
+        var groceriesCategory = categories["Groceries"];
+        var transportCategory = categories["Transport"];
+        var shoppingCategory = categories["Shopping"];
+
         var transactions = new List<Transaction>
         {
+            new()
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserId = dummyUser.Id,
+                AccountId = checkingAccount.Id,
+                CategoryId = shoppingCategory.Id,
+                Type = TransactionType.Expense,
+                Amount = 599,
+                Date = DateTime.UtcNow.Date.AddMonths(-1),
+                CreatedAt = DateTime.UtcNow.Date.AddMonths(-1),
+                UpdatedAt = DateTime.UtcNow.Date.AddMonths(-1),
+                Description = "Hand watch",
+                Tags = "watch,personal"
+            },
             new()
             {
                 Id = Guid.NewGuid().ToString(),
@@ -129,6 +150,8 @@ public static class DummyDataProvider
                 Type = TransactionType.Income,
                 Amount = 5000,
                 Date = DateTime.UtcNow.Date.AddDays(-10),
+                CreatedAt = DateTime.UtcNow.Date.AddDays(-10),
+                UpdatedAt = DateTime.UtcNow.Date.AddDays(-10),
                 Description = "Salary for current month",
                 IsRecurring = true,
                 RecurringTransactionId = recurringSalary.Id,
@@ -143,6 +166,8 @@ public static class DummyDataProvider
                 Type = TransactionType.Expense,
                 Amount = 145.75,
                 Date = DateTime.UtcNow.Date.AddDays(-5),
+                CreatedAt = DateTime.UtcNow.Date.AddDays(-5),
+                UpdatedAt = DateTime.UtcNow.Date.AddDays(-5),
                 Description = "Weekly grocery shopping",
                 Tags = "food,home"
             },
@@ -155,6 +180,8 @@ public static class DummyDataProvider
                 Type = TransactionType.Expense,
                 Amount = 42.30,
                 Date = DateTime.UtcNow.Date.AddDays(-3),
+                CreatedAt = DateTime.UtcNow.Date.AddDays(-3),
+                UpdatedAt = DateTime.UtcNow.Date.AddDays(-3),
                 Description = "Fuel refill",
                 Tags = "car,fuel"
             },
@@ -167,6 +194,8 @@ public static class DummyDataProvider
                 Type = TransactionType.Transfer,
                 Amount = 600,
                 Date = DateTime.UtcNow.Date.AddDays(-2),
+                CreatedAt = DateTime.UtcNow.Date.AddDays(-2),
+                UpdatedAt = DateTime.UtcNow.Date.AddDays(-2),
                 Description = "Monthly savings transfer",
                 Notes = "Auto transfer to emergency fund"
             }
@@ -200,9 +229,11 @@ public static class DummyDataProvider
         return recurringSalary;
     }
 
-    private static async Task<(Category salaryCategory, Category groceriesCategory, Category transportCategory)> CreateCategories(
+    private static async Task<Dictionary<string, Category>> CreateCategories(
         ApplicationDbContext dbContext, ApplicationUser dummyUser)
     {
+        var categories = new Dictionary<string, Category>();
+
         var salaryCategory = new Category
         {
             Id = "Salary".ToCheckSum(),
@@ -213,6 +244,8 @@ public static class DummyDataProvider
             Color = "#22C55E",
             SortOrder = 1
         };
+
+        categories.Add("Salary", salaryCategory);
 
         var groceriesCategory = new Category
         {
@@ -225,6 +258,8 @@ public static class DummyDataProvider
             SortOrder = 2
         };
 
+        categories.Add("Groceries", groceriesCategory);
+
         var transportCategory = new Category
         {
             Id = "Transport".ToCheckSum(),
@@ -236,8 +271,24 @@ public static class DummyDataProvider
             SortOrder = 3
         };
 
-        await dbContext.Categories.AddRangeAsync(salaryCategory, groceriesCategory, transportCategory);
-        return (salaryCategory, groceriesCategory, transportCategory);
+        categories.Add("Transport", transportCategory);
+
+        var shoppingCategory = new Category
+        {
+            Id = "Shopping".ToCheckSum(),
+            UserId = dummyUser.Id,
+            Name = "Shopping",
+            Type = CategoryType.Expense,
+            Icon = "mall",
+            Color = "#F59E0B",
+            SortOrder = 4
+        };
+
+        categories.Add("Shopping", shoppingCategory);
+
+        await dbContext.Categories.AddRangeAsync(categories.Values);
+
+        return categories;
     }
 
     private static async Task<(Account checkingAccount, Account savingsAccount)> CreateAccounts(

@@ -30,4 +30,10 @@ public class DashboardController(IDashboardService DashboardService) : Controlle
     {
         return Ok(await DashboardService.GetRecentTransactionsAsync(UserId));
     }
+
+    [HttpGet("expense-trend")]
+    public async Task<IActionResult> GetExpenseTrend()
+    {
+        return Ok(await DashboardService.GetExpenseTrendAsync(UserId));
+    }
 }
