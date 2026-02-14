@@ -93,6 +93,8 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+const bool seedNeeded = false;
+const bool dummyDataCleanupNeeded = false;
 
 // Seed database with roles and admin user
 using (var scope = app.Services.CreateScope())
@@ -104,31 +106,38 @@ using (var scope = app.Services.CreateScope())
         // Apply migrations automatically (optional - use with caution in production)
         // var dbContext = services.GetRequiredService<ApplicationDbContext>();
         // await dbContext.Database.MigrateAsync();
-        
-        // Seed Configs
-        await services.SeedConfigAsync();
-        
-        // Seed default roles
-        await services.SeedRolesAsync("Admin", "User", "Manager", "Moderator");
-        
-        // Seed admin user
-        await services.SeedAdminUserAsync(
-            email: "admin@example.com",
-            password: "Admin@123456",
-            firstName: "System",
-            lastName: "Administrator"
-        );
 
-        // Seed dummy user with sample finance data
-        await services.SeedDummyUserDataAsync(
-            email: "dummy.user@example.com",
-            password: "Dummy@123456",
-            firstName: "Dummy",
-            lastName: "User",
-            needCleanup: true
-        );
-        
-        Console.WriteLine("Database seeded successfully!");
+        if(seedNeeded)
+        {
+            // Seed Configs
+            await services.SeedConfigAsync();
+
+            // Seed default roles
+            await services.SeedRolesAsync("Admin", "User", "Manager", "Moderator");
+
+            // Seed admin user
+            await services.SeedAdminUserAsync(
+                email: "admin@example.com",
+                password: "Admin@123456",
+                firstName: "System",
+                lastName: "Administrator"
+            );
+
+            // Seed dummy user with sample finance data
+            await services.SeedDummyUserDataAsync(
+                email: "dummy.user@example.com",
+                password: "Dummy@123456",
+                firstName: "Dummy",
+                lastName: "User",
+                needCleanup: dummyDataCleanupNeeded
+            );
+
+            Console.WriteLine("Database seeded successfully!");
+        }
+        else
+        {
+            Console.WriteLine("Database seed skipped!");
+        }        
     }
     catch (Exception ex)
     {
