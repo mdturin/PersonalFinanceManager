@@ -169,4 +169,41 @@ public class DashboardService(ApplicationDbContext Context) : IDashboardService
         };
     }
 
+    public async Task<List<MetricModel>> GetIncomeVsExpenseAsync(string userId)
+    {
+        var now = DateTime.UtcNow;
+
+        var startDate = new DateTime(now.Year, 1, 1);
+        var endDate = startDate.AddYears(1);
+
+        var transactions = Context.Transactions
+            .Where(t => t.UserId == userId && t.Date >= startDate && t.Date < endDate);
+
+        var incomeTotalAmountTask = transactions
+            .Where(t => t.Type == TransactionType.Income)
+            .SumAsync(t => t.Amount);
+
+        var expenseTotalAmountTask = transactions
+            .Where(t => t.Type == TransactionType.Expense)
+            .SumAsync(t => t.Amount);
+
+        var banglaBdt = new CultureInfo("en-BD");
+        banglaBdt.NumberFormat.CurrencySymbol = "৳";
+        banglaBdt.NumberFormat.CurrencyPositivePattern = 2;
+
+        return
+        [
+            new MetricModel()
+            {
+                Label = "Income",
+                Value = (await incomeTotalAmountTask).ToString()
+            },
+            new MetricModel()
+            {
+                Label = "Expense",
+                Value = (await expenseTotalAmountTask).ToString()
+            }
+        ];
+    }
+
 }

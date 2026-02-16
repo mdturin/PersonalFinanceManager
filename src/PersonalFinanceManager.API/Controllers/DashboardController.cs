@@ -36,4 +36,10 @@ public class DashboardController(IDashboardService DashboardService) : Controlle
     {
         return Ok(await DashboardService.GetExpenseTrendAsync(UserId));
     }
+
+    [HttpGet("income-vs-expense")]
+    public async Task<IActionResult> GetIncomeVsExpenseAsync()
+    {
+        return Ok(await DashboardService.GetIncomeVsExpenseAsync(UserId));
+    }
 }
