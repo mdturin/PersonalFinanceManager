@@ -83,19 +83,20 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 // Add CORS (if needed)
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
+    options.AddPolicy("AllowLocal",
         builder =>
         {
             builder
-                .AllowAnyOrigin()
+                .WithOrigins("http://localhost:4200")
                 .AllowAnyMethod()
-                .AllowAnyHeader();
+                .AllowAnyHeader()
+                .AllowCredentials()
+                ;
         });
 });
 
 var app = builder.Build();
-const bool seedNeeded = false;
-const bool dummyDataCleanupNeeded = false;
+const bool seedNeeded = true;
 
 // Seed database with roles and admin user
 using (var scope = app.Services.CreateScope())
@@ -132,7 +133,7 @@ using (var scope = app.Services.CreateScope())
                 password: "Dummy@123456",
                 firstName: "Dummy",
                 lastName: "User",
-                needCleanup: dummyDataCleanupNeeded
+                needCleanup: seedNeeded
             );
 
             Console.WriteLine("Database seeded successfully!");
@@ -162,7 +163,7 @@ else
     app.UseHsts();
 }
 
-app.UseCors("AllowAll");
+app.UseCors("AllowLocal");
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

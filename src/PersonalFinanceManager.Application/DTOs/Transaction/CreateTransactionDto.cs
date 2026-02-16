@@ -8,7 +8,7 @@ public class CreateTransactionDto
     public string? TargetAccountId { get; set; } // for transfers
     public string Type { get; set; }
     public double Amount { get; set; }
-    public string? CategoryId { get; set; }
-    public string? Description { get; set; }
+    public string CategoryId { get; set; }
+    public string Description { get; set; }
     public DateTime Date { get; set; } = DateTime.UtcNow;
 }

@@ -16,10 +16,14 @@ namespace PersonalFinanceManager.API.Controllers;
 [Route("api/transactions")]
 public class TransactionsController : ControllerBase
 {
+    private readonly ILogger<TransactionsController> _logger;
     private readonly ApplicationDbContext _context;
 
-    public TransactionsController(ApplicationDbContext context)
+    public TransactionsController(
+        ILogger<TransactionsController> logger,
+        ApplicationDbContext context)
     {
+        _logger = logger;
         _context = context;
     }
 
@@ -65,28 +69,10 @@ public class TransactionsController : ControllerBase
         var transactions = await query
             .Include(t => t.Account)
             .Include(t => t.Category)
-            .Select(t => new
-            {
-                Id = t.Id,
-                AccountName = t.Account.Name,
-                Type = t.Type, // can't process toString in ef sql
-                Amount = t.Amount,
-                CategoryName = t.Category!.Name,
-                Description = t.Description,
-                Date = t.Date
-            })
+            .OrderByDescending(t => t.Date)
             .ToListAsync();
 
-        return Ok(transactions.Select(t => new TransactionDto()
-        {
-            Id = t.Id,
-            AccountName = t.AccountName,
-            Type = t.Type.ToString(),
-            Amount = t.Amount,
-            CategoryName = t.CategoryName,
-            Description = t.Description,
-            Date = t.Date
-        }));
+        return Ok(transactions.Select(t => new TransactionDto(t)).ToList());
     }
 
     // GET: api/transactions/{id}
@@ -126,7 +112,7 @@ public class TransactionsController : ControllerBase
 
     // POST: api/transactions
     [HttpPost]
-    public async Task<IActionResult> CreateTransaction(CreateTransactionDto dto)
+    public async Task<IActionResult> CreateTransaction([FromBody] CreateTransactionDto dto)
     {
         var account = await _context.Accounts
             .FirstOrDefaultAsync(a => a.Id == dto.AccountId && a.UserId == UserId);
@@ -138,45 +124,89 @@ public class TransactionsController : ControllerBase
         if (!string.IsNullOrEmpty(dto.TargetAccountId))
         {
             targetAccount = await _context.Accounts
-                .FirstOrDefaultAsync(a => a.Id == dto.TargetAccountId);
+                .FirstOrDefaultAsync(a => a.UserId == UserId && a.Id == dto.TargetAccountId);
 
             if (targetAccount == null)
                 return BadRequest("Invalid target account.");
         }
 
-        var transactionType = Enum.Parse<TransactionType>(dto.Type, true);
+        if (!Enum.TryParse<TransactionType>(dto.Type, true, out var transactionType))
+            return BadRequest("Invalid transaction type.");
 
+        Transaction? transaction = null;
+        using var dbTransaction = await _context.Database.BeginTransactionAsync();
+
+        try
+        {
+            AdjustAccountBalance(dto, account, targetAccount, transactionType);
+
+            transaction = new Transaction
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserId = UserId,
+                AccountId = dto.AccountId,
+                CategoryId = dto.CategoryId,
+                TransferToAccountId = dto.TargetAccountId,
+                Type = transactionType,
+                Amount = dto.Amount,
+                Date = dto.Date,
+                Description = dto.Description
+            };
+
+            _context.Transactions.Add(transaction);
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Transaction creation failed! Rolling back.");
+            await dbTransaction.RollbackAsync();
+            throw;
+        }
+        finally
+        {
+            await dbTransaction.CommitAsync();
+
+            if (!string.IsNullOrWhiteSpace(transaction.CategoryId) && transaction.Category == null)
+            {
+                transaction.Category = await _context.Categories
+                    .FindAsync(transaction.CategoryId);
+            }
+        }
+
+        //var createdTransaction = await _context.Transactions
+        //    .Include(t => t.Account)
+        //    .Include(t => t.Category)
+        //    .Where(t => t.Id == transaction.Id)
+        //    .FirstAsync();
+
+        return CreatedAtAction(nameof(GetTransaction), new { id = transaction.Id }, new TransactionDto(transaction));
+    }
+
+    private static void AdjustAccountBalance(
+        CreateTransactionDto dto, 
+        Account account, 
+        Account? targetAccount, 
+        TransactionType transactionType)
+    {
         // Adjust balances
-        if (transactionType == TransactionType.Expense)
-            account.CurrentBalance -= dto.Amount;
-        else if (transactionType == TransactionType.Income)
-            account.CurrentBalance += dto.Amount;
-        else if (transactionType == TransactionType.Transfer && targetAccount != null)
+        switch (transactionType)
         {
-            account.CurrentBalance -= dto.Amount;
-            targetAccount.CurrentBalance += dto.Amount;
-        }
-        else
-        {
-            throw new InvalidEnumArgumentException(nameof(TransactionType), (int)transactionType, typeof(TransactionType));
-        }
-        
-        var transaction = new Transaction
-        {
-            Id = Guid.NewGuid().ToString(),
-            AccountId = dto.AccountId,
-            TransferToAccountId = dto.TargetAccountId,
-            Type = transactionType,
-            Amount = dto.Amount,
-            CategoryId = dto.CategoryId,
-            Description = dto.Description,
-            Date = DateTime.UtcNow
-        };
+            case TransactionType.Expense:
+                account.CurrentBalance -= dto.Amount;
+                break;
 
-        _context.Transactions.Add(transaction);
-        await _context.SaveChangesAsync();
+            case TransactionType.Income:
+                account.CurrentBalance += dto.Amount;
+                break;
 
-        return CreatedAtAction(nameof(GetTransaction), new { id = transaction.Id }, transaction.Id);
+            case TransactionType.Transfer when targetAccount != null:
+                account.CurrentBalance -= dto.Amount;
+                targetAccount.CurrentBalance += dto.Amount;
+                break;
+
+            default:
+                throw new InvalidEnumArgumentException(nameof(TransactionType), (int)transactionType, typeof(TransactionType));
+        }
     }
 
     // PUT: api/transactions/{id}

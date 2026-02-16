@@ -124,6 +124,7 @@ public static class DummyDataProvider
         var groceriesCategory = categories["Groceries"];
         var transportCategory = categories["Transport"];
         var shoppingCategory = categories["Shopping"];
+        var transferCategory = categories["Transfer"];
 
         var transactions = new List<Transaction>
         {
@@ -190,6 +191,7 @@ public static class DummyDataProvider
                 Id = Guid.NewGuid().ToString(),
                 UserId = dummyUser.Id,
                 AccountId = checkingAccount.Id,
+                CategoryId = transferCategory.Id,
                 TransferToAccountId = savingsAccount.Id,
                 Type = TransactionType.Transfer,
                 Amount = 600,
@@ -236,7 +238,7 @@ public static class DummyDataProvider
 
         var salaryCategory = new Category
         {
-            Id = "Salary".ToCheckSum(),
+            Id = "Salary".ToNormalizeString(),
             UserId = dummyUser.Id,
             Name = "Salary",
             Type = CategoryType.Income,
@@ -249,7 +251,7 @@ public static class DummyDataProvider
 
         var groceriesCategory = new Category
         {
-            Id = "Groceries".ToCheckSum(),
+            Id = "Groceries".ToNormalizeString(),
             UserId = dummyUser.Id,
             Name = "Groceries",
             Type = CategoryType.Expense,
@@ -262,7 +264,7 @@ public static class DummyDataProvider
 
         var transportCategory = new Category
         {
-            Id = "Transport".ToCheckSum(),
+            Id = "Transport".ToNormalizeString(),
             UserId = dummyUser.Id,
             Name = "Transport",
             Type = CategoryType.Expense,
@@ -275,7 +277,7 @@ public static class DummyDataProvider
 
         var shoppingCategory = new Category
         {
-            Id = "Shopping".ToCheckSum(),
+            Id = "Shopping".ToNormalizeString(),
             UserId = dummyUser.Id,
             Name = "Shopping",
             Type = CategoryType.Expense,
@@ -285,6 +287,19 @@ public static class DummyDataProvider
         };
 
         categories.Add("Shopping", shoppingCategory);
+
+        var transferCategory = new Category
+        {
+            Id = "Transfer".ToNormalizeString(),
+            UserId = dummyUser.Id,
+            Name = "Transfer",
+            Type = CategoryType.Expense,
+            Icon = "swap-horizontal",
+            Color = "#6B7280",
+            SortOrder = 5
+        };
+
+        categories.Add("Transfer", transferCategory);
 
         await dbContext.Categories.AddRangeAsync(categories.Values);
 
