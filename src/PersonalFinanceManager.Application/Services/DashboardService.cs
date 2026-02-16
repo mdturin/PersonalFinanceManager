@@ -187,10 +187,6 @@ public class DashboardService(ApplicationDbContext Context) : IDashboardService
             .Where(t => t.Type == TransactionType.Expense)
             .SumAsync(t => t.Amount);
 
-        var banglaBdt = new CultureInfo("en-BD");
-        banglaBdt.NumberFormat.CurrencySymbol = "৳";
-        banglaBdt.NumberFormat.CurrencyPositivePattern = 2;
-
         await Task.WhenAll(incomeTotalAmountTask, expenseTotalAmountTask);
 
         var incomeTotalAmount = incomeTotalAmountTask.Result;
