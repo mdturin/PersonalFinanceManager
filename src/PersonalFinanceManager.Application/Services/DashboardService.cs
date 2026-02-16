@@ -191,17 +191,24 @@ public class DashboardService(ApplicationDbContext Context) : IDashboardService
         banglaBdt.NumberFormat.CurrencySymbol = "৳";
         banglaBdt.NumberFormat.CurrencyPositivePattern = 2;
 
+        await Task.WhenAll(incomeTotalAmountTask, expenseTotalAmountTask);
+
+        var incomeTotalAmount = incomeTotalAmountTask.Result;
+        var expenseTotalAmount = expenseTotalAmountTask.Result;
+
         return
         [
             new MetricModel()
             {
                 Label = "Income",
-                Value = (await incomeTotalAmountTask).ToString()
+                Value = incomeTotalAmount.ToString(),
+                Trend = "#198754"
             },
             new MetricModel()
             {
                 Label = "Expense",
-                Value = (await expenseTotalAmountTask).ToString()
+                Value = expenseTotalAmount.ToString(),
+                Trend = "#dc3545"
             }
         ];
     }
