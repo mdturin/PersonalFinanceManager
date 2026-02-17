@@ -4,6 +4,7 @@ using PersonalFinanceManager.Application.DTOs;
 using PersonalFinanceManager.Application.Interfaces;
 using PersonalFinanceManager.Core.Configurations;
 using PersonalFinanceManager.Core.Entities;
+using System.Security.Claims;
 
 namespace PersonalFinanceManager.Application.Services;
 
@@ -137,7 +138,7 @@ public class AuthService : IAuthService
             };
         }
 
-        var userId = principal.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userId))
         {
             return new AuthResponseDto
@@ -148,7 +149,8 @@ public class AuthService : IAuthService
         }
 
         var user = await _userManager.FindByIdAsync(userId);
-        if (user == null || user.RefreshToken != refreshTokenDto.RefreshToken || 
+        if (user == null || 
+            user.RefreshToken != refreshTokenDto.RefreshToken || 
             user.RefreshTokenExpiryTime <= DateTime.UtcNow)
         {
             return new AuthResponseDto

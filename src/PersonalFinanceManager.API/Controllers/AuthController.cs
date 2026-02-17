@@ -8,14 +8,10 @@ namespace PersonalFinanceManager.API.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public class AuthController : ControllerBase
+public class AuthController(IAuthService AuthService) : ControllerBase
 {
-    private readonly IAuthService _authService;
-
-    public AuthController(IAuthService authService)
-    {
-        _authService = authService;
-    }
+    private string UserId =>
+        User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
@@ -25,14 +21,8 @@ public class AuthController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var result = await _authService.RegisterAsync(registerDto);
-        
-        if (!result.Success)
-        {
-            return BadRequest(result);
-        }
-
-        return Ok(result);
+        var result = await AuthService.RegisterAsync(registerDto);
+        return result.Success ? Ok(result) : BadRequest(result);
     }
 
     [HttpPost("login")]
@@ -43,26 +33,62 @@ public class AuthController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var result = await _authService.LoginAsync(loginDto);
-        
+        var result = await AuthService.LoginAsync(loginDto);
+
         if (!result.Success)
         {
             return Unauthorized(result);
         }
 
+        Response.Cookies.Append("refreshToken", result.RefreshToken!, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(7)
+        });
+
         return Ok(result);
     }
 
     [HttpPost("refresh-token")]
-    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
+    public async Task<IActionResult> RefreshToken()
     {
-        if (!ModelState.IsValid)
+        var refreshToken = Request.Cookies["refreshToken"];
+        if (string.IsNullOrWhiteSpace(refreshToken))
         {
-            return BadRequest(ModelState);
+            return Unauthorized(new AuthResponseDto
+            {
+                Success = false,
+                Message = "Invalid access token."
+            });
         }
 
-        var result = await _authService.RefreshTokenAsync(refreshTokenDto);
-        return result.Success ? Ok(result) : Unauthorized(result);
+        var accessToken = string.Empty;
+        var authHeader = Request.Headers.Authorization.FirstOrDefault();
+
+        if (authHeader != null && authHeader.StartsWith("Bearer "))
+            accessToken = authHeader["Bearer ".Length..];
+
+        var result = await AuthService.RefreshTokenAsync(new RefreshTokenDto() { 
+            AccessToken = accessToken,
+            RefreshToken = refreshToken
+        });
+
+        if (!result.Success)
+        {
+            return Unauthorized(result);
+        }
+
+        Response.Cookies.Append("refreshToken", result.RefreshToken!, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(7)
+        });
+
+        return Ok(result);
     }
 
     [Authorize]
@@ -76,14 +102,14 @@ public class AuthController : ControllerBase
             return Unauthorized();
         }
 
-        var result = await _authService.LogoutAsync(userId);
-        
-        if (!result)
-        {
-            return BadRequest(new { message = "Logout failed" });
-        }
+        var result = await AuthService.LogoutAsync(userId);
+        var message = result
+            ? "Logged out successfully"
+            : "Logout failed";
 
-        return Ok(new { message = "Logged out successfully" });
+        return result
+            ? Ok(new { message })
+            : BadRequest(new { message });
     }
 
     [Authorize]
@@ -102,14 +128,8 @@ public class AuthController : ControllerBase
             return Unauthorized();
         }
 
-        var result = await _authService.ChangePasswordAsync(userId, changePasswordDto);
-        
-        if (!result.Success)
-        {
-            return BadRequest(result);
-        }
-
-        return Ok(result);
+        var result = await AuthService.ChangePasswordAsync(userId, changePasswordDto);
+        return result.Success ? Ok(result) : BadRequest(result);
     }
 
     [HttpPost("forgot-password")]
@@ -120,8 +140,7 @@ public class AuthController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        await _authService.ForgotPasswordAsync(forgotPasswordDto);
-        
+        await AuthService.ForgotPasswordAsync(forgotPasswordDto);
         return Ok(new { message = "If the email exists, a password reset link has been sent." });
     }
 
@@ -133,7 +152,7 @@ public class AuthController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var result = await _authService.ResetPasswordAsync(resetPasswordDto);
+        var result = await AuthService.ResetPasswordAsync(resetPasswordDto);
         
         if (!result)
         {

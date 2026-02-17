@@ -4,7 +4,6 @@ namespace PersonalFinanceManager.Application.DTOs;
 
 public class RefreshTokenDto
 {
-    [Required] public string AccessToken { get; set; } = string.Empty;
-
-    [Required] public string RefreshToken { get; set; } = string.Empty;
+    public string AccessToken { get; set; } = string.Empty;
+    public string RefreshToken { get; set; } = string.Empty;
 }
