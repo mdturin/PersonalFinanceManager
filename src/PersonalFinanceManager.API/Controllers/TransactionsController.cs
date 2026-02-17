@@ -134,11 +134,11 @@ public class TransactionsController : ControllerBase
             return BadRequest("Invalid transaction type.");
 
         Transaction? transaction = null;
-        using var dbTransaction = await _context.Database.BeginTransactionAsync();
+        await using var dbTransaction = await _context.Database.BeginTransactionAsync();
 
         try
         {
-            AdjustAccountBalance(dto, account, targetAccount, transactionType);
+            AdjustCreatingTransactionAccountBalance(dto, account, targetAccount, transactionType);
 
             transaction = new Transaction
             {
@@ -155,6 +155,7 @@ public class TransactionsController : ControllerBase
 
             _context.Transactions.Add(transaction);
             await _context.SaveChangesAsync();
+            await dbTransaction.CommitAsync();
         }
         catch (Exception ex)
         {
@@ -164,25 +165,17 @@ public class TransactionsController : ControllerBase
         }
         finally
         {
-            await dbTransaction.CommitAsync();
-
-            if (!string.IsNullOrWhiteSpace(transaction.CategoryId) && transaction.Category == null)
+            if (!string.IsNullOrWhiteSpace(transaction!.CategoryId) && transaction.Category == null)
             {
                 transaction.Category = await _context.Categories
                     .FindAsync(transaction.CategoryId);
             }
         }
 
-        //var createdTransaction = await _context.Transactions
-        //    .Include(t => t.Account)
-        //    .Include(t => t.Category)
-        //    .Where(t => t.Id == transaction.Id)
-        //    .FirstAsync();
-
         return CreatedAtAction(nameof(GetTransaction), new { id = transaction.Id }, new TransactionDto(transaction));
     }
 
-    private static void AdjustAccountBalance(
+    private static void AdjustCreatingTransactionAccountBalance(
         CreateTransactionDto dto, 
         Account account, 
         Account? targetAccount, 
@@ -252,20 +245,34 @@ public class TransactionsController : ControllerBase
 
         if (transaction == null) return NotFound();
 
-        // Reverse the transaction from balance
-        if (transaction.Type == TransactionType.Expense)
-            transaction.Account.CurrentBalance += transaction.Amount;
-        else if (transaction.Type == TransactionType.Income)
-            transaction.Account.CurrentBalance -= transaction.Amount;
-        else if (transaction.Type == TransactionType.Transfer && transaction.TransferToAccount != null)
-        {
-            transaction.Account.CurrentBalance += transaction.Amount;
-            transaction.TransferToAccount.CurrentBalance -= transaction.Amount;
-        }
+        AdjustRevertingTransactionAccountBalance(transaction);
 
         _context.Transactions.Remove(transaction);
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    private static void AdjustRevertingTransactionAccountBalance(Transaction transaction)
+    {
+        // Reverse the transaction from balance
+        switch (transaction.Type)
+        {
+            case TransactionType.Expense:
+                transaction.Account.CurrentBalance += transaction.Amount;
+                break;
+
+            case TransactionType.Income:
+                transaction.Account.CurrentBalance -= transaction.Amount;
+                break;
+
+            case TransactionType.Transfer when transaction.TransferToAccount != null:
+                transaction.Account.CurrentBalance += transaction.Amount;
+                transaction.TransferToAccount.CurrentBalance -= transaction.Amount;
+                break;
+
+            default:
+                throw new InvalidEnumArgumentException(nameof(TransactionType), (int)transaction.Type, typeof(TransactionType));
+        }
     }
 }
