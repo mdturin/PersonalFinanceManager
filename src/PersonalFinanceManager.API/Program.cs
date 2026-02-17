@@ -96,7 +96,7 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-const bool seedNeeded = true;
+const bool seedNeeded = false;
 
 // Seed database with roles and admin user
 using (var scope = app.Services.CreateScope())

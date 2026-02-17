@@ -62,13 +62,7 @@ public class AuthController : ControllerBase
         }
 
         var result = await _authService.RefreshTokenAsync(refreshTokenDto);
-        
-        if (!result.Success)
-        {
-            return Unauthorized(result);
-        }
-
-        return Ok(result);
+        return result.Success ? Ok(result) : Unauthorized(result);
     }
 
     [Authorize]
