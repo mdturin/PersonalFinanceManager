@@ -47,8 +47,6 @@ public static class DummyDataProvider
 
         var salaryCategory = categories["Salary"];
         var groceriesCategory = categories["Groceries"];
-        var transportCategory = categories["Transport"];
-        var shoppingCategory = categories["Shopping"];
 
         // Creating Recurring Transactions
         var recurringSalary = await CreateRecurringTransactions(
@@ -59,7 +57,6 @@ public static class DummyDataProvider
             dbContext,
             dummyUser,
             checkingAccount,
-            savingsAccount,
             categories,
             recurringSalary
         );
@@ -116,7 +113,6 @@ public static class DummyDataProvider
         ApplicationDbContext dbContext, 
         ApplicationUser dummyUser, 
         Account checkingAccount, 
-        Account savingsAccount, 
         Dictionary<string, Category> categories,
         RecurringTransaction recurringSalary)
     {
@@ -124,7 +120,6 @@ public static class DummyDataProvider
         var groceriesCategory = categories["Groceries"];
         var transportCategory = categories["Transport"];
         var shoppingCategory = categories["Shopping"];
-        var transferCategory = categories["Transfer"];
 
         var transactions = new List<Transaction>
         {
@@ -185,21 +180,6 @@ public static class DummyDataProvider
                 UpdatedAt = DateTime.UtcNow.Date.AddDays(-3),
                 Description = "Fuel refill",
                 Tags = "car,fuel"
-            },
-            new()
-            {
-                Id = Guid.NewGuid().ToString(),
-                UserId = dummyUser.Id,
-                AccountId = checkingAccount.Id,
-                CategoryId = transferCategory.Id,
-                TransferToAccountId = savingsAccount.Id,
-                Type = TransactionType.Transfer,
-                Amount = 600,
-                Date = DateTime.UtcNow.Date.AddDays(-2),
-                CreatedAt = DateTime.UtcNow.Date.AddDays(-2),
-                UpdatedAt = DateTime.UtcNow.Date.AddDays(-2),
-                Description = "Monthly savings transfer",
-                Notes = "Auto transfer to emergency fund"
             }
         };
 
@@ -287,19 +267,6 @@ public static class DummyDataProvider
         };
 
         categories.Add("Shopping", shoppingCategory);
-
-        var transferCategory = new Category
-        {
-            Id = "Transfer".ToNormalizeString(),
-            UserId = dummyUser.Id,
-            Name = "Transfer",
-            Type = CategoryType.Expense,
-            Icon = "swap-horizontal",
-            Color = "#6B7280",
-            SortOrder = 5
-        };
-
-        categories.Add("Transfer", transferCategory);
 
         await dbContext.Categories.AddRangeAsync(categories.Values);
 
