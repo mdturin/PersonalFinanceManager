@@ -161,7 +161,7 @@ public static class ServiceCollectionExtensions
         
         var config = new SideNavConfig()
         {
-            Version = "2026-02-07-02",
+            Version = "2026-02-23-02",
             Sections =
             [
                 new NavSection()
@@ -187,6 +187,20 @@ public static class ServiceCollectionExtensions
                         {
                             Label = "Accounts",
                             Route = "/accounts",
+                            Active = false,
+                        },
+
+                        new NavItem()
+                        {
+                            Label = "Budgets",
+                            Route = "/budgets",
+                            Active = false,
+                        },
+
+                        new NavItem()
+                        {
+                            Label = "Alerts",
+                            Route = "/alerts",
                             Active = false,
                         },
                     ]
