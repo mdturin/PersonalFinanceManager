@@ -228,30 +228,9 @@ public class AccountsController : ControllerBase
 
         var accounts = await _context.Accounts
             .Where(a => a.UserId == UserId)
-            .Select(a => new
-            {
-                Id = a.Id,
-                Name = a.Name,
-                Type = a.Type,
-                Institution = a.Institution,
-                CurrentBalance = a.CurrentBalance.ToString("C", banglaBdt),
-                Currency = a.Currency,
-                IsActive = a.IsActive,
-                UpdatedAt = a.UpdatedAt
-            })
             .ToListAsync();
 
-        return Ok(accounts.Select(a => new AccountDto()
-        {
-            Id = a.Id,
-            Name = a.Name,
-            Type = a.Type.ToString(),
-            Institution = a.Institution,
-            CurrentBalance = a.CurrentBalance,
-            Currency = a.Currency,
-            IsActive = a.IsActive,
-            UpdatedAt = a.UpdatedAt
-        }));
+        return Ok(accounts.Select(a => new AccountDto(a)));
     }
 
     // GET: api/accounts/{id}
@@ -264,30 +243,11 @@ public class AccountsController : ControllerBase
 
         var account = await _context.Accounts
             .Where(a => a.Id == id && a.UserId == UserId)
-            .Select(a => new
-            {
-                Name = a.Name,
-                Type = a.Type,
-                Institution = a.Institution,
-                CurrentBalance = a.CurrentBalance.ToString("C", banglaBdt),
-                Currency = a.Currency,
-                IsActive = a.IsActive,
-                UpdatedAt = a.UpdatedAt
-            })
             .FirstOrDefaultAsync();
 
         return account == null
             ? NotFound()
-            : Ok(new AccountDto()
-            {
-                Name = account.Name,
-                Type = account.Type.ToString(),
-                Institution = account.Institution,
-                CurrentBalance = account.CurrentBalance,
-                Currency = account.Currency,
-                IsActive = account.IsActive,
-                UpdatedAt = account.UpdatedAt
-            });
+            : Ok(new AccountDto(account));
     }
 
     // POST: api/accounts
@@ -299,12 +259,12 @@ public class AccountsController : ControllerBase
         _context.Accounts.Add(account);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetAccount), new { id = account.Id }, account.Id);
+        return CreatedAtAction(nameof(GetAccount), new { id = account.Id }, new AccountDto(account));
     }
 
     // PUT: api/accounts/{id}
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateAccount(string id, UpdateAccountDto dto)
+    public async Task<IActionResult> UpdateAccount(string id, AccountDto dto)
     {
         var account = await _context.Accounts
             .FirstOrDefaultAsync(a => a.Id == id && a.UserId == UserId);
@@ -313,11 +273,38 @@ public class AccountsController : ControllerBase
             return NotFound();
 
         account.Name = dto.Name;
-        account.IsActive = dto.IsActive;
-        account.IncludeInNetWorth = dto.IncludeInNetWorth;
-        account.Description = dto.Description;
-        account.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
 
+        return NoContent();
+    }
+
+    // ACTIVE: api/accounts/{id}/activate
+    [HttpPatch("{id}/activate")]
+    public async Task<IActionResult> ActiveAccount(string id)
+    {
+        var account = await _context.Accounts
+            .FirstOrDefaultAsync(a => a.Id == id && a.UserId == UserId);
+
+        if (account == null)
+            return NotFound();
+
+        account.IsActive = true;
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    // DEACTIVE: api/accounts/{id}/deactivate
+    [HttpPatch("{id}/deactivate")]
+    public async Task<IActionResult> DeactiveAccount(string id)
+    {
+        var account = await _context.Accounts
+            .FirstOrDefaultAsync(a => a.Id == id && a.UserId == UserId);
+
+        if (account == null)
+            return NotFound();
+
+        account.IsActive = false;
         await _context.SaveChangesAsync();
 
         return NoContent();

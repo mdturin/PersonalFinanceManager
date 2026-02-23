@@ -17,6 +17,6 @@ public class Account : BaseEntity
 
     // Navigation properties
     public ApplicationUser User { get; set; } = null!;
-    public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
-    public ICollection<Transaction> TransferToTransactions { get; set; } = new List<Transaction>();
+    public ICollection<Transaction> Transactions { get; set; } = [];
+    public ICollection<Transaction> TransferToTransactions { get; set; } = [];
 }
