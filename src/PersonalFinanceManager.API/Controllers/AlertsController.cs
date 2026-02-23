@@ -37,11 +37,12 @@ public class AlertsController : ControllerBase
             alerts.Add(new AlertDto
             {
                 Id = $"low-balance-{account.Id}",
-                Type = "low_balance",
+                Type = "low-balance",
                 Severity = account.CurrentBalance < 0 ? "critical" : "warning",
                 Title = $"Low balance: {account.Name}",
                 Message = $"Current balance is {account.CurrentBalance:0.##}. Consider topping up soon.",
-                CreatedAt = now
+                CreatedAt = now,
+                Source = account.Name
             });
         }
 
