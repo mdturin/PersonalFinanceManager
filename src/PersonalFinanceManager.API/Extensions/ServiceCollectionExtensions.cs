@@ -1,3 +1,4 @@
+using LiteDB;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +22,6 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddUserManagement(
         this IServiceCollection services,
         IConfiguration configuration,
-        string connectionString,
         Action<IdentityOptions>? identityOptions = null,
         string? migrationsAssembly = null)
     {
@@ -33,6 +33,10 @@ public static class ServiceCollectionExtensions
         {
             throw new InvalidOperationException("JWT settings are not properly configured.");
         }
+
+        var connectionString = configuration
+            .GetSection("SqliteConnectionString")
+            .Get<string>();
 
         // Add DbContext with migrations assembly configuration
         services.AddDbContext<ApplicationDbContext>(options =>

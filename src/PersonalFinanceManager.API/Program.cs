@@ -43,7 +43,6 @@ builder.Services.AddSwaggerGen(c =>
 // Add User Management Library with custom Identity options
 builder.Services.AddUserManagement(
     builder.Configuration,
-    builder.Configuration.GetConnectionString("DefaultConnection")!,
     options =>
     {
         // Password settings
@@ -67,8 +66,7 @@ builder.Services.AddUserManagement(
         // Sign in settings
         options.SignIn.RequireConfirmedEmail = false;
         options.SignIn.RequireConfirmedPhoneNumber = false;
-    },
-    migrationsAssembly: "PersonalFinanceManager.Infrastructure" 
+    }
 );
 
 // Register services
