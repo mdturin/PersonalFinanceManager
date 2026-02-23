@@ -4,3 +4,14 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 .vs/
+
+# SQLite database
+*.db
+*.sqlite
+*.sqlite3
+*.sqlitedb
+
+# SQLite temp / journal files
+*.db-journal
+*.db-wal
+*.db-shm

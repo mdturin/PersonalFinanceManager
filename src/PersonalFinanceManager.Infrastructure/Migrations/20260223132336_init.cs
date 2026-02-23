@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PersonalFinanceManager.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -88,12 +88,11 @@ namespace PersonalFinanceManager.Infrastructure.Migrations
                     UserId = table.Column<string>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
-                    CurrentBalance = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    InitialBalance = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Institution = table.Column<string>(type: "TEXT", nullable: false),
+                    CreditLimit = table.Column<double>(type: "REAL", nullable: false),
+                    CurrentBalance = table.Column<double>(type: "decimal(18,2)", nullable: false),
                     Currency = table.Column<string>(type: "TEXT", maxLength: 3, nullable: false),
                     Description = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
-                    Color = table.Column<string>(type: "TEXT", nullable: true),
-                    Icon = table.Column<string>(type: "TEXT", nullable: true),
                     IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
                     IncludeInNetWorth = table.Column<bool>(type: "INTEGER", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
@@ -201,9 +200,9 @@ namespace PersonalFinanceManager.Infrastructure.Migrations
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
                     UserId = table.Column<string>(type: "TEXT", nullable: false),
+                    ParentCategoryId = table.Column<string>(type: "TEXT", nullable: true),
                     Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
-                    ParentCategoryId = table.Column<string>(type: "TEXT", nullable: true),
                     Icon = table.Column<string>(type: "TEXT", nullable: true),
                     Color = table.Column<string>(type: "TEXT", nullable: true),
                     IsSystem = table.Column<bool>(type: "INTEGER", nullable: false),
@@ -236,8 +235,8 @@ namespace PersonalFinanceManager.Infrastructure.Migrations
                     UserId = table.Column<string>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: true),
-                    TargetAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CurrentAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TargetAmount = table.Column<double>(type: "decimal(18,2)", nullable: false),
+                    CurrentAmount = table.Column<double>(type: "decimal(18,2)", nullable: false),
                     TargetDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
                     Icon = table.Column<string>(type: "TEXT", nullable: true),
@@ -265,13 +264,13 @@ namespace PersonalFinanceManager.Infrastructure.Migrations
                     UserId = table.Column<string>(type: "TEXT", nullable: false),
                     CategoryId = table.Column<string>(type: "TEXT", nullable: true),
                     Name = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Amount = table.Column<double>(type: "decimal(18,2)", nullable: false),
                     Period = table.Column<int>(type: "INTEGER", nullable: false),
                     StartDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     EndDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
                     SendAlerts = table.Column<bool>(type: "INTEGER", nullable: false),
-                    AlertThreshold = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
+                    AlertThreshold = table.Column<double>(type: "decimal(5,2)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
@@ -301,7 +300,7 @@ namespace PersonalFinanceManager.Infrastructure.Migrations
                     AccountId = table.Column<string>(type: "TEXT", nullable: false),
                     CategoryId = table.Column<string>(type: "TEXT", nullable: true),
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Amount = table.Column<double>(type: "decimal(18,2)", nullable: false),
                     Description = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
                     Frequency = table.Column<int>(type: "INTEGER", nullable: false),
                     FrequencyInterval = table.Column<int>(type: "INTEGER", nullable: false),
@@ -339,12 +338,13 @@ namespace PersonalFinanceManager.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
+                    UserId = table.Column<string>(type: "TEXT", nullable: false),
                     AccountId = table.Column<string>(type: "TEXT", nullable: false),
                     CategoryId = table.Column<string>(type: "TEXT", nullable: true),
                     TransferToAccountId = table.Column<string>(type: "TEXT", nullable: true),
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Date = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Amount = table.Column<double>(type: "decimal(18,2)", nullable: false),
                     Description = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
                     Notes = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: true),
                     Reference = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
@@ -380,6 +380,12 @@ namespace PersonalFinanceManager.Infrastructure.Migrations
                         column: x => x.RecurringTransactionId,
                         principalTable: "RecurringTransactions",
                         principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Transactions_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -512,6 +518,11 @@ namespace PersonalFinanceManager.Infrastructure.Migrations
                 name: "IX_Transactions_TransferToAccountId",
                 table: "Transactions",
                 column: "TransferToAccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Transactions_UserId",
+                table: "Transactions",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
