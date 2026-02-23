@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using PersonalFinanceManager.Core.Configurations;
 using PersonalFinanceManager.Core.Entities;
 using PersonalFinanceManager.Infrastructure.Data.Context;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 
@@ -96,6 +97,61 @@ public static class ServiceCollectionExtensions
             });
 
         return services;
+    }
+
+    public static async Task SeedDataAsync(
+        this IServiceProvider serviceProvider,
+        bool seedNeeded = false)
+    {
+        // Seed database with roles and admin user
+        using var scope = serviceProvider.CreateScope();
+
+        var services = scope.ServiceProvider;
+
+        try
+        {
+            // Apply migrations automatically (optional - use with caution in production)
+            // var dbContext = services.GetRequiredService<ApplicationDbContext>();
+            // await dbContext.Database.MigrateAsync();
+
+            if (!seedNeeded)
+            {
+                Console.WriteLine("Database seeding skipped.");
+                return;
+            }
+
+            Debugger.Break();
+
+            // Seed Configs
+            await services.SeedConfigAsync();
+
+            // Seed default roles
+            await services.SeedRolesAsync("Admin", "User", "Manager", "Moderator");
+
+            // Seed admin user
+            await services.SeedAdminUserAsync(
+                email: "admin@example.com",
+                password: "Admin@123456",
+                firstName: "System",
+                lastName: "Administrator"
+            );
+
+            // Seed dummy user with sample finance data
+            await services.SeedDummyUserDataAsync(
+                email: "dummy.user@example.com",
+                password: "Dummy@123456",
+                firstName: "Dummy",
+                lastName: "User",
+                needCleanup: seedNeeded
+            );
+
+            Console.WriteLine("Database seeded successfully!");
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "An error occurred while seeding the database.");
+        }
     }
 
     public static async Task SeedConfigAsync(this IServiceProvider serviceProvider)

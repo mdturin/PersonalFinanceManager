@@ -3,7 +3,6 @@ using PersonalFinanceManager.API.Extensions;
 using PersonalFinanceManager.Application.Interfaces;
 using PersonalFinanceManager.Application.Services;
 using PersonalFinanceManager.Infrastructure.Data.Context;
-using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -94,59 +93,9 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-const bool seedNeeded = true;
 
-// Seed database with roles and admin user
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    
-    try
-    {
-        // Apply migrations automatically (optional - use with caution in production)
-        // var dbContext = services.GetRequiredService<ApplicationDbContext>();
-        // await dbContext.Database.MigrateAsync();
-
-        if(seedNeeded)
-        {
-            Debugger.Break();
-
-            // Seed Configs
-            await services.SeedConfigAsync();
-
-            // Seed default roles
-            await services.SeedRolesAsync("Admin", "User", "Manager", "Moderator");
-
-            // Seed admin user
-            await services.SeedAdminUserAsync(
-                email: "admin@example.com",
-                password: "Admin@123456",
-                firstName: "System",
-                lastName: "Administrator"
-            );
-
-            // Seed dummy user with sample finance data
-            await services.SeedDummyUserDataAsync(
-                email: "dummy.user@example.com",
-                password: "Dummy@123456",
-                firstName: "Dummy",
-                lastName: "User",
-                needCleanup: seedNeeded
-            );
-
-            Console.WriteLine("Database seeded successfully!");
-        }
-        else
-        {
-            Console.WriteLine("Database seed skipped!");
-        }        
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while seeding the database.");
-    }
-}
+// Seed initial and dummy data
+await app.Services.SeedDataAsync();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
