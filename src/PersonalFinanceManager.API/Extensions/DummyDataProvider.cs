@@ -50,7 +50,11 @@ public static class DummyDataProvider
 
         // Creating Recurring Transactions
         var recurringSalary = await CreateRecurringTransactions(
-            dbContext, dummyUser, checkingAccount, salaryCategory);
+            dbContext,
+            dummyUser,
+            checkingAccount,
+            salaryCategory,
+            groceriesCategory);
 
         // Creating Transactions
         await CreateTransactions(
@@ -123,6 +127,7 @@ public static class DummyDataProvider
 
         var transactions = new List<Transaction>
         {
+            // Historical baseline (31-60 days ago) for unusual spending comparison
             new()
             {
                 Id = Guid.NewGuid().ToString(),
@@ -130,13 +135,14 @@ public static class DummyDataProvider
                 AccountId = checkingAccount.Id,
                 CategoryId = shoppingCategory.Id,
                 Type = TransactionType.Expense,
-                Amount = 599,
-                Date = DateTime.UtcNow.Date.AddMonths(-1),
-                CreatedAt = DateTime.UtcNow.Date.AddMonths(-1),
-                UpdatedAt = DateTime.UtcNow.Date.AddMonths(-1),
-                Description = "Hand watch",
-                Tags = "watch,personal"
+                Amount = 120,
+                Date = DateTime.UtcNow.Date.AddDays(-45),
+                CreatedAt = DateTime.UtcNow.Date.AddDays(-45),
+                UpdatedAt = DateTime.UtcNow.Date.AddDays(-45),
+                Description = "Clothes purchase",
+                Tags = "shopping,baseline"
             },
+            // Income
             new()
             {
                 Id = Guid.NewGuid().ToString(),
@@ -153,6 +159,7 @@ public static class DummyDataProvider
                 RecurringTransactionId = recurringSalary.Id,
                 Tags = "income,payroll"
             },
+            // Current month spending to trigger budget progress and unusual spending alerts
             new()
             {
                 Id = Guid.NewGuid().ToString(),
@@ -166,6 +173,20 @@ public static class DummyDataProvider
                 UpdatedAt = DateTime.UtcNow.Date.AddDays(-5),
                 Description = "Weekly grocery shopping",
                 Tags = "food,home"
+            },
+            new()
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserId = dummyUser.Id,
+                AccountId = checkingAccount.Id,
+                CategoryId = shoppingCategory.Id,
+                Type = TransactionType.Expense,
+                Amount = 780,
+                Date = DateTime.UtcNow.Date.AddDays(-4),
+                CreatedAt = DateTime.UtcNow.Date.AddDays(-4),
+                UpdatedAt = DateTime.UtcNow.Date.AddDays(-4),
+                Description = "Electronics purchase",
+                Tags = "shopping,unusual"
             },
             new()
             {
@@ -190,7 +211,8 @@ public static class DummyDataProvider
         ApplicationDbContext dbContext, 
         ApplicationUser dummyUser, 
         Account checkingAccount, 
-        Category salaryCategory)
+        Category salaryCategory,
+        Category groceriesCategory)
     {
         var recurringSalary = new RecurringTransaction
         {
@@ -207,7 +229,22 @@ public static class DummyDataProvider
             NextOccurrence = DateTime.UtcNow.Date.AddMonths(1)
         };
 
-        await dbContext.RecurringTransactions.AddAsync(recurringSalary);
+        var recurringRent = new RecurringTransaction
+        {
+            Id = Guid.NewGuid().ToString(),
+            UserId = dummyUser.Id,
+            AccountId = checkingAccount.Id,
+            CategoryId = groceriesCategory.Id,
+            Type = TransactionType.Expense,
+            Amount = 1200,
+            Description = "House rent",
+            Frequency = RecurrenceFrequency.Monthly,
+            FrequencyInterval = 1,
+            StartDate = DateTime.UtcNow.Date.AddMonths(-6),
+            NextOccurrence = DateTime.UtcNow.Date.AddDays(3)
+        };
+
+        await dbContext.RecurringTransactions.AddRangeAsync(recurringSalary, recurringRent);
         return recurringSalary;
     }
 
@@ -283,7 +320,7 @@ public static class DummyDataProvider
             Name = "Main Checking",
             Type = AccountType.Checking,
             Institution = "Demo Bank",
-            CurrentBalance = 3250,
+            CurrentBalance = 850,
             Currency = "USD",
             Description = "Primary day-to-day account",
             CreatedAt = DateTime.UtcNow.Date.AddMonths(-6),
