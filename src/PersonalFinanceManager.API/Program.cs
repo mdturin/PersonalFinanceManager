@@ -65,7 +65,8 @@ builder.Services.AddUserManagement(
         // Sign in settings
         options.SignIn.RequireConfirmedEmail = false;
         options.SignIn.RequireConfirmedPhoneNumber = false;
-    }
+    },
+    typeof(ApplicationDbContext).Assembly.GetName().Name
 );
 
 // Register services
