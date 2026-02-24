@@ -1,4 +1,3 @@
-using PersonalFinanceManager.Core.Entities;
 using PersonalFinanceManager.Core.Enums;
 
 namespace PersonalFinanceManager.Application.DTOs.Transaction;
@@ -13,7 +12,7 @@ public class TransactionDto
     public string? CategoryId { get; set; }
     public string? CategoryName { get; set; }
 
-    public string Type { get; set; }
+    public TransactionType Type { get; set; }
     public double Amount { get; set; }
     public string? Description { get; set; }
 
@@ -33,7 +32,7 @@ public class TransactionDto
         CategoryName = transaction.Category?.Name;
 
         Amount = transaction.Amount;
-        Type = transaction.Type.ToString();
+        Type = transaction.Type;
         Date = transaction.Date;
         Description = transaction.Description;
     }

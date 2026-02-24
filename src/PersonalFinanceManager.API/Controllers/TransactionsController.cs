@@ -33,7 +33,7 @@ public class TransactionsController : ControllerBase
     // GET: api/transactions
     [HttpGet]
     public async Task<IActionResult> GetTransactions(
-        [FromQuery] string? type = null,
+        [FromQuery] TransactionType type = 0,
         [FromQuery] string? accountId = null,
         [FromQuery] string? categoryName = null,
         [FromQuery] DateTime? startDate = null,
@@ -44,9 +44,9 @@ public class TransactionsController : ControllerBase
             .Where(t => t.Account.UserId == UserId)
             .AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(type) && Enum.TryParse<TransactionType>(type, true, out var transactionType))
+        if (type != TransactionType.All)
         {
-            query = query.Where(t => t.Type == transactionType);
+            query = query.Where(t => t.Type == type);
         }
 
         if (!string.IsNullOrWhiteSpace(accountId))
@@ -103,14 +103,12 @@ public class TransactionsController : ControllerBase
 
         if (account == null) return BadRequest("Invalid source account.");
 
-        if (!Enum.TryParse<TransactionType>(dto.Type, true, out var transactionType))
-            return BadRequest("Invalid transaction type.");
-
         Transaction? transaction = null;
         await using var dbTransaction = await _context.Database.BeginTransactionAsync();
 
         try
         {
+            var transactionType = dto.Type;
             AdjustCreatingTransactionAccountBalance(dto, account, transactionType);
 
             transaction = new Transaction

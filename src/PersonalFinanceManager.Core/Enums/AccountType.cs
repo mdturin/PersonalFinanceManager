@@ -2,6 +2,7 @@ namespace PersonalFinanceManager.Core.Enums;
 
 public enum AccountType
 {
+    All = 0,
     Checking = 1,
     Savings = 2,
     CreditCard = 3,
